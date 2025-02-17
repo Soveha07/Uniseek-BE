@@ -2,16 +2,16 @@ import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { Role } from 'src/role.enum';
 
 export class CreateStudentGoogleDto {
-    username: string;
+    displayName: string;
 
     provider: string
 
     @IsEmail({}, { message: 'Invalid email' })
     email: string;
 
-    profile_url: string;
+    photoURL: string;
 
-    created_at: Date;
+    createdAt: Date;
 
     role: Role = Role.Student;
 }

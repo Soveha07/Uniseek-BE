@@ -25,8 +25,7 @@ export class Student {
     @Column({ name: 'provider' })
     provider: string;
 
-    //   @CreateDateColumn()
-    @Column({ name: 'created_at' })
+    @Column({ name: 'created_at', default: new Date() })
     createdAt: Date;
 
     //   @UpdateDateColumn()

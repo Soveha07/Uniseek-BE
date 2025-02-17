@@ -32,6 +32,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         const { emails, displayName, photos } = profile;
         const email = emails[0].value;
         const photoUrl = photos && photos[0] ? photos[0].value : '';
+        console.log("displayName", displayName);
+        console.log("photoUrl", photoUrl);
 
         let user = await this.studentService.findByEmail(email);
 
@@ -39,9 +41,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             await this.studentService.create({
                 email: email,
                 provider: 'google',
-                username: displayName,
-                profile_url: photoUrl,
-                created_at: new Date(),
+                displayName: displayName,
+                photoURL: photoUrl,
+                createdAt: new Date(),
                 role: Role.Student,
             });
             user = await this.studentService.findByEmail(email);
