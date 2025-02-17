@@ -1,16 +1,20 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './entities/student.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { AuthService } from 'src/auth/auth.service';
+import { CreateStudentGoogleDto } from './dto/create-student-google.dto';
 
 @Injectable()
 export class StudentsService {
   constructor(
     @InjectRepository(Student)
+    @Inject(forwardRef(() => AuthService))
     private studentRepository: Repository<Student>,
+    private readonly authService: AuthService
   ) { }
 
 
@@ -56,14 +60,14 @@ export class StudentsService {
       if (user) {
 
         const createdUser = await this.findByEmail(user.email);
-        // const tokens = await this.jwtAuthService.generateTokens(createdUser.email, createdUser.id, createdUser.role)
-        // const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
-        // await this.updateRefreshToken(createdUser.id, hashedRefreshToken);
+        const tokens = await this.authService.generateTokens(createdUser.email, createdUser.uid, createdUser.role)
+        const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+        await this.updateRefreshToken(createdUser.uid, hashedRefreshToken);
 
         return {
           userId: createdUser.uid,
-          // accessToken: tokens.accessToken,
-          // refreshToken: tokens.refreshToken,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
         };
       }
 
@@ -100,5 +104,15 @@ export class StudentsService {
     if (result.affected === 0) {
       throw new NotFoundException(`Student with ID "${uid}" not found`);
     }
+  }
+
+  async updateRefreshToken(userId: string, refreshToken: string): Promise<void> {
+    console.log("userId", userId);
+    console.log("refreshToken", refreshToken);
+    await this.studentRepository.update(userId, { refresh_token: refreshToken });
+  }
+
+  async create(user: CreateStudentGoogleDto) {
+    return this.studentRepository.save(user);
   }
 }

@@ -3,11 +3,13 @@ import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './entities/student.entity';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('/student')
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) { }
 
+  @Public()
   @Post('/create')
   async create(@Body() createStudentDto: CreateStudentDto) {
     try {

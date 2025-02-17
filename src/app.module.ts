@@ -4,14 +4,16 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
-import { UsersModule } from './users/users.module';
 import { StudentsModule } from './students/students.module';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard, PassportModule } from '@nestjs/passport';
+import { JwtAuthGuard } from './auth/guards/jwt-guard';
+import { GoogleStrategy } from './auth/strategies/google.strategy';
 
 @Module({
   imports: [
     StudentsModule,
-    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`
@@ -32,11 +34,18 @@ import { AuthModule } from './auth/auth.module';
         },
       }),
     }),
-    UsersModule,
     StudentsModule,
     AuthModule,
+    PassportModule.register({ defaultStrategy: 'google' }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    GoogleStrategy
+  ],
 })
 export class AppModule { }

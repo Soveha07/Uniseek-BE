@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { Logger } from '@nestjs/common';
+import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { GlobalExceptionFilter } from './filters/exception.filter';
 
 // Load the appropriate .env file based on NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
@@ -14,6 +16,10 @@ async function bootstrap() {
 
   // enable cors for api
   app.enableCors();
+
+  // Apply Global Interceptor & Exception Filter
+  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   await app.listen(port);
 

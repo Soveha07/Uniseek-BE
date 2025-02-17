@@ -1,3 +1,4 @@
+import { Role } from 'src/role.enum';
 import {
     Entity,
     PrimaryColumn,
@@ -37,4 +38,10 @@ export class Student {
 
     @Column({ name: 'phone_number' })
     phoneNumber: string;
+
+    @Column({ name: "refresh_token" })
+    refresh_token: string;
+
+    @Column({ type: 'enum', enum: Role, default: Role.Student, name: "role" })
+    role: Role;
 }
