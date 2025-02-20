@@ -46,7 +46,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
     }
 
-    async login(student: any): Promise<{ studentId: string, accessToken: string, refreshToken: string }> {
+    async login(student: any): Promise<{ userId: string, accessToken: string, refreshToken: string }> {
         try {
             console.log('Student data:', student);
 
@@ -67,7 +67,7 @@ export class AuthService {
 
             // Return the student data along with the access and refresh tokens
             return {
-                studentId: student.uid,
+                userId: student.uid,
                 accessToken: tokens.accessToken,
                 refreshToken: tokens.refreshToken,
             };

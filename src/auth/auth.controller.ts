@@ -53,7 +53,7 @@ export class AuthController {
         // This sends the authentication data back to the parent window
         window.opener.postMessage({
           type: 'GoogleAuthSuccess',
-          studentId: '${user.uid}',
+          userId: '${user.uid}',
           accessToken: '${user.accessToken}',
           refreshToken: '${user.refreshToken}'
         }, 'http://localhost:3000');

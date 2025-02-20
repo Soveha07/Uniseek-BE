@@ -35,7 +35,7 @@ export class StudentsService {
   }
 
   async createEndUser(createStudentDto: CreateStudentDto): Promise<any> {
-    const { username, email, password } = createStudentDto;
+    const { username, phone_number, email, password } = createStudentDto;
 
     const existingUser = await this.studentRepository.findOne({ where: { email } });
     if (existingUser) {
@@ -49,7 +49,8 @@ export class StudentsService {
     const newUser = this.studentRepository.create({
       ...createStudentDto,
       displayName: username,
-      email,
+      phoneNumber: phone_number,
+      email: email,
       password: hashedPassword,
       provider: "UniSeek",
       createdAt: new Date(),

@@ -4,7 +4,7 @@ import { Role } from 'src/role.enum';
 export class CreateStudentDto {
     username: string;
 
-    // phone_number: string;
+    phone_number: string;
 
     @IsEmail({}, { message: 'Invalid email' })
     email: string;
