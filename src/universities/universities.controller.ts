@@ -5,7 +5,7 @@ import { UpdateUniversityDto } from './dto/update-university.dto';
 import { ShowUniversityDto } from './dto/show-university.dto';
 import { Public } from 'src/decorators/public.decorator';
 
-@Controller('universities')
+@Controller('/universities')
 export class UniversitiesController {
   constructor(private readonly universitiesService: UniversitiesService) { }
 
@@ -20,10 +20,11 @@ export class UniversitiesController {
     return this.universitiesService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.universitiesService.findOne(+id);
-  // }
+  @Public()
+  @Get('/:id')
+  async findOne(@Param('id') id: number): Promise<ShowUniversityDto> {
+    return await this.universitiesService.findOne(id);
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateUniversityDto: UpdateUniversityDto) {

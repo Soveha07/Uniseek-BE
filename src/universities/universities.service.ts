@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUniversityDto } from './dto/create-university.dto';
 import { UpdateUniversityDto } from './dto/update-university.dto';
 import { University } from './entities/university.entity';
@@ -33,8 +33,20 @@ export class UniversitiesService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} university`;
+  async findOne(id: number): Promise<ShowUniversityDto> {
+    const university = await this.universityRepo.findOneBy({ id });
+    if (!university) {
+      throw new NotFoundException(`University with ID ${id} not found`);
+    }
+    const showUniversityDto = new ShowUniversityDto();
+    showUniversityDto.id = university.id;
+    showUniversityDto.name = university.name;
+    showUniversityDto.location = university.location;
+    showUniversityDto.description = university.description;
+    showUniversityDto.minPrice = university.minPrice;
+    showUniversityDto.maxPrice = university.maxPrice;
+    showUniversityDto.type = university.universityType;
+    return showUniversityDto;
   }
 
   update(id: number, updateUniversityDto: UpdateUniversityDto) {
