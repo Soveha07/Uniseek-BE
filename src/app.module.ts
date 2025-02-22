@@ -11,6 +11,8 @@ import { AuthGuard, PassportModule } from '@nestjs/passport';
 import { JwtAuthGuard } from './auth/guards/jwt-guard';
 import { GoogleStrategy } from './auth/strategies/google.strategy';
 import { dataSource } from 'db/typeorm.config';
+import { UniversitiesModule } from './universities/universities.module';
+
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { dataSource } from 'db/typeorm.config';
     StudentsModule,
     AuthModule,
     PassportModule.register({ defaultStrategy: 'google' }),
+    UniversitiesModule,
   ],
   controllers: [AppController],
   providers: [
