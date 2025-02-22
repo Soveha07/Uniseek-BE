@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard, PassportModule } from '@nestjs/passport';
 import { JwtAuthGuard } from './auth/guards/jwt-guard';
 import { GoogleStrategy } from './auth/strategies/google.strategy';
+import { dataSource } from 'db/typeorm.config';
 
 @Module({
   imports: [
@@ -18,22 +19,23 @@ import { GoogleStrategy } from './auth/strategies/google.strategy';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('POSTGRES_HOST'),
-        port: configService.get<number>('POSTGRES_PORT'),
-        username: configService.get('POSTGRES_USER'),
-        password: configService.get<string>('POSTGRES_PASSWORD'),
-        database: configService.get('POSTGRES_DATABASE'),
-        entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
-        ssl: {
-          ca: configService.get<string>("POSTGRES_SSL_CA_PATH"),
-        },
-      }),
-    }),
+    TypeOrmModule.forRoot(dataSource.options),
+    // TypeOrmModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => ({
+    //     type: 'postgres',
+    //     host: configService.get('POSTGRES_HOST'),
+    //     port: configService.get<number>('POSTGRES_PORT'),
+    //     username: configService.get('POSTGRES_USER'),
+    //     password: configService.get<string>('POSTGRES_PASSWORD'),
+    //     database: configService.get('POSTGRES_DATABASE'),
+    //     entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
+    //     ssl: {
+    //       ca: configService.get<string>("POSTGRES_SSL_CA_PATH"),
+    //     },
+    //   }),
+    // }),
     StudentsModule,
     AuthModule,
     PassportModule.register({ defaultStrategy: 'google' }),
