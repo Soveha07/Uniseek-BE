@@ -43,6 +43,6 @@ export class University {
     @Column({ type: 'enum', enum: Shift, nullable: true })
     shift?: Shift;
 
-    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    @CreateDateColumn({ name: 'created_at', type: 'timestamp', default: new Date() })
     createdAt: Date;
 }

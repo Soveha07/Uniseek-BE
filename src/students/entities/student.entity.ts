@@ -6,23 +6,25 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
+    PrimaryGeneratedColumn,
 } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Entity({ name: 'students' })
 export class Student {
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn('uuid')
     uid: string; // UID
 
     @Column({ name: 'email' })
     email: string;
 
-    @Column({ name: 'display_name' })
+    @Column({ name: 'display_name', nullable: true })
     displayName: string;
 
     @Column({ name: 'photo_url', nullable: true })
     photoURL: string | null;
 
-    @Column({ name: 'provider' })
+    @Column({ name: 'provider', nullable: true })
     provider: string;
 
     @Column({ name: 'created_at', default: new Date() })
@@ -32,15 +34,15 @@ export class Student {
     @Column({ name: 'updated_at', nullable: true })
     updatedAt: Date | null;
 
-    @Column({ name: 'password' })
+    @Column({ name: 'password', nullable: true })
     password: string;
 
-    @Column({ name: 'phone_number' })
+    @Column({ name: 'phone_number', nullable: true })
     phoneNumber: string;
 
-    @Column({ name: "refresh_token" })
+    @Column({ name: "refresh_token", nullable: true })
     refresh_token: string;
 
-    @Column({ type: 'enum', enum: Role, default: Role.Student, name: "role" })
+    @Column({ type: 'enum', enum: Role, default: Role.Student, name: "role", nullable: true })
     role: Role;
 }

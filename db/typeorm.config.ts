@@ -11,9 +11,6 @@ dotenv.config({ path: '.env.local' });
 // Create a ConfigService instance to read env variables
 const configService = new ConfigService();
 
-// Read SSL certificate properly
-const sslCert = configService.get<string>('POSTGRES_SSL_CA_PATH')?.replace(/\\n/g, '\n');
-
 console.log(configService.get<string>('POSTGRES_PORT'));
 export const dataSource = new DataSource({
     type: 'postgres',
@@ -30,21 +27,20 @@ export const dataSource = new DataSource({
     ssl: {
         ca: configService.get<string>("POSTGRES_SSL_CA_PATH"),
     },
+
     // type: 'postgres',
-    // host: process.env.POSTGRES_HOST,
-    // port: Number(process.env.POSTGRES_PORT),
-    // username: process.env.POSTGRES_USER,
-    // password: process.env.POSTGRES_PASSWORD,
-    // database: process.env.POSTGRES_DATABASE,
-    // synchronize: false, // Set to true only in development
-    // logging: true, // Enables SQL query logging
+    // host: "localhost",
+    // port: 5432,
+    // username: "postgres",
+    // password: "Veha10042003",
+    // database: "postgres",
+    // schema: "test",
+    // synchronize: false,
+    // logging: true,
     // entities: [`${__dirname}/../src/**/*.entity{.ts,.js}`],
     // migrations: [`${__dirname}/migrations/*{.ts,.js}`],
     // migrationsTableName: 'migrations',
-    // // ssl: sslCert ? { ca: sslCert, rejectUnauthorized: true } : undefined, // Handles SSL
-    // ssl: {
-    //     ca: process.env.POSTGRES_SSL_CA_PATH,
-    // },
+
 });
 
 dataSource

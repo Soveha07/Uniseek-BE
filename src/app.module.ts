@@ -12,6 +12,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-guard';
 import { GoogleStrategy } from './auth/strategies/google.strategy';
 import { dataSource } from 'db/typeorm.config';
 import { UniversitiesModule } from './universities/universities.module';
+import { MajorsModule } from './majors/majors.module';
 
 
 @Module({
@@ -42,6 +43,7 @@ import { UniversitiesModule } from './universities/universities.module';
     AuthModule,
     PassportModule.register({ defaultStrategy: 'google' }),
     UniversitiesModule,
+    MajorsModule,
   ],
   controllers: [AppController],
   providers: [
