@@ -45,4 +45,7 @@ export class University {
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp', default: new Date() })
     createdAt: Date;
+
+    @Column({ name: "photo_url", nullable: true })
+    photoUrl?: string;
 }

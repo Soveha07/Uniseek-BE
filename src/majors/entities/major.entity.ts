@@ -12,13 +12,13 @@ export class Major {
     @Column({ name: 'description', type: 'varchar', nullable: true })
     description: string;
 
-    @Column({ name: 'photoUrl', type: 'varchar', nullable: true })
+    @Column({ name: 'photo_url', type: 'varchar', nullable: true })
     photoUrl: string;
 
     @Column({ name: 'created_at', default: new Date() })
     createdAt: Date;
 
     @OneToOne(() => University)
-    @JoinColumn()
+    @JoinColumn({ name: 'university_id' })
     university: University;
 }
