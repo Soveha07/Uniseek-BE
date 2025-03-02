@@ -13,6 +13,7 @@ import { GoogleStrategy } from './auth/strategies/google.strategy';
 import { dataSource } from 'db/typeorm.config';
 import { UniversitiesModule } from './universities/universities.module';
 import { MajorsModule } from './majors/majors.module';
+import { SurveyResponsesModule } from './survey-responses/survey-responses.module';
 
 
 @Module({
@@ -44,6 +45,7 @@ import { MajorsModule } from './majors/majors.module';
     PassportModule.register({ defaultStrategy: 'google' }),
     UniversitiesModule,
     MajorsModule,
+    SurveyResponsesModule,
   ],
   controllers: [AppController],
   providers: [

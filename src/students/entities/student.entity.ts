@@ -1,4 +1,5 @@
 import { Role } from 'src/role.enum';
+import { SurveyResponse } from 'src/survey-responses/entities/survey-response.entity';
 import {
     Entity,
     PrimaryColumn,
@@ -45,4 +46,7 @@ export class Student {
 
     @Column({ type: 'enum', enum: Role, default: Role.Student, name: "role", nullable: true })
     role: Role;
+
+    @OneToMany(() => SurveyResponse, (surveyResponse) => surveyResponse.student)
+    surveyResponses: SurveyResponse[];
 }
