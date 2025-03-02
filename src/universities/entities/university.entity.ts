@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
 import { UniversityType, ClassSize, Gradation, Shift } from '../enums/university.enums';
+import { UniversityMajor } from './university-major.entity';
 
 
 @Entity('universities')
@@ -48,4 +49,7 @@ export class University {
 
     @Column({ name: "photo_url", nullable: true })
     photoUrl?: string;
+
+    @OneToMany(() => UniversityMajor, (universityMajor) => universityMajor.university)
+    universityMajors: UniversityMajor[];
 }

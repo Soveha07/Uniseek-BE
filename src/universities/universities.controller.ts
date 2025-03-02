@@ -20,10 +20,16 @@ export class UniversitiesController {
     return this.universitiesService.findAll();
   }
 
+  // @Public()
+  // @Get('/:id')
+  // async findOne(@Param('id') id: number): Promise<ShowUniversityDto> {
+  //   return await this.universitiesService.findOne(id);
+  // }
+
   @Public()
   @Get('/:id')
-  async findOne(@Param('id') id: number): Promise<ShowUniversityDto> {
-    return await this.universitiesService.findOne(id);
+  async getMajors(@Param('id') id: number) {
+    return this.universitiesService.findOne(id);
   }
 
   // @Patch(':id')
