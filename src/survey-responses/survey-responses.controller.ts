@@ -10,13 +10,30 @@ export class SurveyResponsesController {
 
   @Public()
   @Post()
-  async createSurveyResponse(@Body() createSurveyResponseDto: CreateSurveyResponseDto) {
+  async survey(@Body() createSurveyResponseDto: CreateSurveyResponseDto) {
     try {
-      return await this.surveyResponsesService.createSurveyResponse(createSurveyResponseDto);
+      try {
+        await this.surveyResponsesService.createSurveyResponse(createSurveyResponseDto);
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
+      return await this.surveyResponsesService.recommendUniversities(createSurveyResponseDto);
+    }
+    catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Public()
+  @Post('/recommended-uni')
+  async getRecommendedUni(@Body() createSurveyResponseDto: CreateSurveyResponseDto) {
+    try {
+      return await this.surveyResponsesService.recommendUniversities(createSurveyResponseDto);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
+
 
   @Get()
   findAll() {
