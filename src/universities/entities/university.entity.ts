@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
 import { UniversityType, ClassSize, Gradation, Shift } from '../enums/university.enums';
 import { UniversityMajor } from './university-major.entity';
+import { UniversityCareerField } from './university-careerfield.entity';
 
 
 @Entity('universities')
@@ -52,4 +53,7 @@ export class University {
 
     @OneToMany(() => UniversityMajor, (universityMajor) => universityMajor.university)
     universityMajors: UniversityMajor[];
+
+    @OneToMany(() => UniversityCareerField, (universityCareerfield) => universityCareerfield.university)
+    universityCareerfields: UniversityCareerField[];
 }

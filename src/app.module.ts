@@ -14,6 +14,7 @@ import { dataSource } from 'db/typeorm.config';
 import { UniversitiesModule } from './universities/universities.module';
 import { MajorsModule } from './majors/majors.module';
 import { SurveyResponsesModule } from './survey-responses/survey-responses.module';
+import { CareerFieldsModule } from './career-fields/career-fields.module';
 
 
 @Module({
@@ -46,6 +47,7 @@ import { SurveyResponsesModule } from './survey-responses/survey-responses.modul
     UniversitiesModule,
     MajorsModule,
     SurveyResponsesModule,
+    CareerFieldsModule,
   ],
   controllers: [AppController],
   providers: [
