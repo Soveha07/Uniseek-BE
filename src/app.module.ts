@@ -15,6 +15,7 @@ import { UniversitiesModule } from './universities/universities.module';
 import { MajorsModule } from './majors/majors.module';
 import { SurveyResponsesModule } from './survey-responses/survey-responses.module';
 import { CareerFieldsModule } from './career-fields/career-fields.module';
+import { MentorsModule } from './mentors/mentors.module';
 
 
 @Module({
@@ -48,6 +49,7 @@ import { CareerFieldsModule } from './career-fields/career-fields.module';
     MajorsModule,
     SurveyResponsesModule,
     CareerFieldsModule,
+    MentorsModule,
   ],
   controllers: [AppController],
   providers: [
