@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } f
 import { UniversityType, ClassSize, Gradation, Shift } from '../enums/university.enums';
 import { UniversityMajor } from './university-major.entity';
 import { UniversityCareerField } from './university-careerfield.entity';
+import { Mentor } from 'src/mentors/entities/mentor.entity';
 
 
 @Entity('universities')
@@ -56,4 +57,7 @@ export class University {
 
     @OneToMany(() => UniversityCareerField, (universityCareerfield) => universityCareerfield.university)
     universityCareerfields: UniversityCareerField[];
+
+    @OneToMany(() => Mentor, (mentor) => mentor.university)
+    mentors: Mentor[];
 }

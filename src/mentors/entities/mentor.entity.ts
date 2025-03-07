@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne, ManyToOne } from 'typeorm';
 import { MentorAvailability } from './mentor-availabilty.entity';
 import { University } from 'src/universities/entities/university.entity';
 import { Major } from 'src/majors/entities/major.entity';
@@ -30,7 +30,7 @@ export class Mentor {
     @Column({ type: 'varchar', nullable: true, name: 'telegram_link' })
     telegramLink: string;
 
-    @OneToOne(() => University)
+    @ManyToOne(() => University, (university) => university.mentors)
     @JoinColumn({ name: 'university_id' })
     university: University
 
