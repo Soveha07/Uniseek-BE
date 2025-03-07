@@ -16,6 +16,8 @@ import { MajorsModule } from './majors/majors.module';
 import { SurveyResponsesModule } from './survey-responses/survey-responses.module';
 import { CareerFieldsModule } from './career-fields/career-fields.module';
 import { MentorsModule } from './mentors/mentors.module';
+import { MailerService } from './mailer/mailer.service';
+import { BookingsModule } from './bookings/bookings.module';
 
 
 @Module({
@@ -50,6 +52,7 @@ import { MentorsModule } from './mentors/mentors.module';
     SurveyResponsesModule,
     CareerFieldsModule,
     MentorsModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -58,7 +61,8 @@ import { MentorsModule } from './mentors/mentors.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    GoogleStrategy
+    GoogleStrategy,
+    MailerService
   ],
 })
 export class AppModule { }
