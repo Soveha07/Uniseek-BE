@@ -1,4 +1,5 @@
 import { UniversityType } from "../enums/university.enums";
+import { UniversityMajor } from '../entities/university-major.entity';
 
 export class ShowUniversityDto {
   id: number;
@@ -15,4 +16,5 @@ export class ShowUniversityDto {
   facility: string;
   shift: string;
   photo_url: string;
+  universityMajors?: UniversityMajor[]; 
 }

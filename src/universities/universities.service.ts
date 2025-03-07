@@ -21,36 +21,41 @@ export class UniversitiesService {
   async findAll(): Promise<ShowUniversityDto[]> {
     try {
       const universities = await this.universitiesRepository.find();
-      return universities.map(uni => ({
-        id: uni.id,
-        name: uni.name,
-        location: uni.location,
-        description: uni.description,
-        total_enrollment: uni.total_enrollment,
-        min_price: uni.min_price,
-        max_price: uni.max_price,
-        university_type: uni.university_type,
-        class_size: uni.class_size,
-        scholarship: uni.scholarship,
-        exchange: uni.exchange,
-        facility: uni.facility,
-        shift: uni.shift,
-        photo_url: uni.photo_url,
-      }));
+      return universities.map(uni => this.mapToShowDto(uni));
     } catch (error) {
       console.error('Error fetching universities:', error);
       return []; 
     }
   }
 
-  async findOne(id: number): Promise<University> {
-    const university = await this.universitiesRepository.findOneBy({ id });
-    
-    if (!university) {
-      throw new NotFoundException(`University with ID ${id} not found`);
+  async findOne(id: number, relations: string[] = []): Promise<ShowUniversityDto> {
+    try {
+      console.log(`Finding university ${id} with relations:`, relations);
+
+      const university = await this.universitiesRepository.findOne({
+        where: { id },
+        relations: relations // This should directly work with the array
+      });
+      
+      if (!university) {
+        throw new NotFoundException(`University with ID ${id} not found`);
+      }
+      
+      console.log(`University found: ${university.name}`);
+      const universityDto = this.mapToShowDto(university);
+      
+      // Debug log
+      if (university.universityMajors) {
+        console.log(`Found ${university.universityMajors.length} majors for university ${id}`);
+      } else {
+        console.log(`No majors found for university ${id}`);
+      }
+      
+      return universityDto;
+    } catch (error) {
+      console.error(`Error finding university ${id}:`, error);
+      throw error;
     }
-    
-    return university;
   }
 
   async update(id: number, updateUniversityDto: UpdateUniversityDto): Promise<University> {
@@ -88,6 +93,23 @@ export class UniversitiesService {
       facility: university.facility,
       shift: university.shift,
       photo_url: university.photo_url,
+      universityMajors: university.universityMajors, 
     };
+  }
+
+  private flattenRelations(relations: string[]): string[] {
+    const result = new Set<string>();
+    
+    relations.forEach(relation => {
+      if (relation.includes('.')) {
+        const parts = relation.split('.');
+        
+        result.add(parts[0]);
+      } else {
+        result.add(relation);
+      }
+    });
+    
+    return Array.from(result);
   }
 }
