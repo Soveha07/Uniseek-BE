@@ -1,66 +1,93 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateUniversityDto } from './dto/create-university.dto';
 import { UpdateUniversityDto } from './dto/update-university.dto';
 import { University } from './entities/university.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ShowUniversityDto } from './dto/show-university.dto';
 
 @Injectable()
 export class UniversitiesService {
-
   constructor(
     @InjectRepository(University)
-    private universityRepo: Repository<University>,
-  ) { }
+    private universitiesRepository: Repository<University>,
+  ) {}
 
-  create(createUniversityDto: CreateUniversityDto) {
-    return 'This action adds a new university';
+  async create(createUniversityDto: CreateUniversityDto): Promise<University> {
+    const university = this.universitiesRepository.create(createUniversityDto);
+    return await this.universitiesRepository.save(university);
   }
 
   async findAll(): Promise<ShowUniversityDto[]> {
-    const universities = await this.universityRepo.find();
-    return universities.map(university => {
-      const showUniversityDto = new ShowUniversityDto();
-      showUniversityDto.id = university.id;
-      showUniversityDto.name = university.name;
-      showUniversityDto.location = university.location;
-      showUniversityDto.description = university.description;
-      showUniversityDto.minPrice = university.minPrice;
-      showUniversityDto.maxPrice = university.maxPrice;
-      showUniversityDto.type = university.universityType;
-      return showUniversityDto;
-    });
+    try {
+      const universities = await this.universitiesRepository.find();
+      return universities.map(uni => ({
+        id: uni.id,
+        name: uni.name,
+        location: uni.location,
+        description: uni.description,
+        total_enrollment: uni.total_enrollment,
+        min_price: uni.min_price,
+        max_price: uni.max_price,
+        university_type: uni.university_type,
+        class_size: uni.class_size,
+        scholarship: uni.scholarship,
+        exchange: uni.exchange,
+        facility: uni.facility,
+        shift: uni.shift,
+        photo_url: uni.photo_url,
+      }));
+    } catch (error) {
+      console.error('Error fetching universities:', error);
+      return []; 
+    }
   }
 
-  // async findOne(id: number): Promise<ShowUniversityDto> {
-  //   const university = await this.universityRepo.findOneBy({ id });
-  //   if (!university) {
-  //     throw new NotFoundException(`University with ID ${id} not found`);
-  //   }
-  //   const showUniversityDto = new ShowUniversityDto();
-  //   showUniversityDto.id = university.id;
-  //   showUniversityDto.name = university.name;
-  //   showUniversityDto.location = university.location;
-  //   showUniversityDto.description = university.description;
-  //   showUniversityDto.minPrice = university.minPrice;
-  //   showUniversityDto.maxPrice = university.maxPrice;
-  //   showUniversityDto.type = university.universityType;
-  //   return showUniversityDto;
-  // }
-
-  async findOne(universityId: number) {
-    return this.universityRepo.findOne({
-      where: { id: universityId },
-      relations: ['universityMajors', 'universityMajors.major'],
-    });
+  async findOne(id: number): Promise<University> {
+    const university = await this.universitiesRepository.findOneBy({ id });
+    
+    if (!university) {
+      throw new NotFoundException(`University with ID ${id} not found`);
+    }
+    
+    return university;
   }
 
-  update(id: number, updateUniversityDto: UpdateUniversityDto) {
-    return `This action updates a #${id} university`;
+  async update(id: number, updateUniversityDto: UpdateUniversityDto): Promise<University> {
+    const result = await this.universitiesRepository.update(id, updateUniversityDto);
+    
+    if (result.affected === 0) {
+      throw new NotFoundException(`University with ID ${id} not found`);
+    }
+    
+    return this.universitiesRepository.findOne({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} university`;
+  async remove(id: number): Promise<void> {
+    const result = await this.universitiesRepository.delete(id);
+    
+    if (result.affected === 0) {
+      throw new NotFoundException(`University with ID ${id} not found`);
+    }
+  }
+  
+  // Helper method to map entity to DTO
+  private mapToShowDto(university: University): ShowUniversityDto {
+    return {
+      id: university.id,
+      name: university.name,
+      location: university.location,
+      description: university.description,
+      total_enrollment: university.total_enrollment,
+      min_price: university.min_price,
+      max_price: university.max_price,
+      university_type: university.university_type,
+      class_size: university.class_size,
+      scholarship: university.scholarship,
+      exchange: university.exchange,
+      facility: university.facility,
+      shift: university.shift,
+      photo_url: university.photo_url,
+    };
   }
 }

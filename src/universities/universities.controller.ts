@@ -1,18 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { UniversitiesService } from './universities.service';
 import { CreateUniversityDto } from './dto/create-university.dto';
 import { UpdateUniversityDto } from './dto/update-university.dto';
 import { ShowUniversityDto } from './dto/show-university.dto';
 import { Public } from 'src/decorators/public.decorator';
 
-@Controller('/universities')
+@Controller('universities')
 export class UniversitiesController {
-  constructor(private readonly universitiesService: UniversitiesService) { }
-
-  // @Post()
-  // create(@Body() createUniversityDto: CreateUniversityDto) {
-  //   return this.universitiesService.create(createUniversityDto);
-  // }
+  constructor(private readonly universitiesService: UniversitiesService) {}
 
   @Public()
   @Get()
@@ -20,25 +15,27 @@ export class UniversitiesController {
     return this.universitiesService.findAll();
   }
 
-  // @Public()
-  // @Get('/:id')
-  // async findOne(@Param('id') id: number): Promise<ShowUniversityDto> {
-  //   return await this.universitiesService.findOne(id);
-  // }
-
   @Public()
-  @Get('/:id')
-  async getMajors(@Param('id') id: number) {
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<ShowUniversityDto> {
     return this.universitiesService.findOne(id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUniversityDto: UpdateUniversityDto) {
-  //   return this.universitiesService.update(+id, updateUniversityDto);
-  // }
+  @Post()
+  create(@Body() createUniversityDto: CreateUniversityDto) {
+    return this.universitiesService.create(createUniversityDto);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.universitiesService.remove(+id);
-  // }
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number, 
+    @Body() updateUniversityDto: UpdateUniversityDto
+  ) {
+    return this.universitiesService.update(id, updateUniversityDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.universitiesService.remove(id);
+  }
 }

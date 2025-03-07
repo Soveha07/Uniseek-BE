@@ -2,53 +2,52 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } f
 import { UniversityType, ClassSize, Gradation, Shift } from '../enums/university.enums';
 import { UniversityMajor } from './university-major.entity';
 
-
 @Entity('universities')
 export class University {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'varchar', nullable: false })
+    @Column()
     name: string;
 
-    @Column({ type: 'varchar', nullable: true })
-    location?: string;
+    @Column()
+    location: string;
 
-    @Column({ type: 'varchar', nullable: true })
-    description?: string;
+    @Column('text')
+    description: string;
 
-    @Column({ name: 'total_enrollment', type: 'int', nullable: true })
-    totalEnrollment?: number;
+    @Column({ nullable: true })
+    total_enrollment: number;
 
-    @Column({ name: 'min_price', type: 'numeric', nullable: true })
-    minPrice?: number;
+    @Column('decimal', { precision: 10, scale: 2 })
+    min_price: number;
 
-    @Column({ name: 'max_price', type: 'numeric', nullable: true })
-    maxPrice?: number;
+    @Column('decimal', { precision: 10, scale: 2 })
+    max_price: number;
 
-    @Column({ name: 'university_type', type: 'enum', enum: UniversityType, nullable: true })
-    universityType?: UniversityType;
+    @Column()
+    university_type: string;
 
-    @Column({ name: 'class_size', type: 'enum', enum: ClassSize, nullable: true })
-    classSize?: ClassSize;
+    @Column({ nullable: true })
+    class_size: string;
 
-    @Column({ type: 'enum', enum: Gradation, nullable: true })
-    scholarship?: Gradation;
+    @Column({ default: false })
+    scholarship: boolean;
 
-    @Column({ type: 'enum', enum: Gradation, nullable: true })
-    exchange?: Gradation;
+    @Column({ default: false })
+    exchange: boolean;
 
-    @Column({ type: 'enum', enum: Gradation, nullable: true })
-    facility?: Gradation;
+    @Column('text', { nullable: true })
+    facility: string;
 
-    @Column({ type: 'enum', enum: Shift, nullable: true })
-    shift?: Shift;
+    @Column({ nullable: true })
+    shift: string;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp', default: new Date() })
     createdAt: Date;
 
-    @Column({ name: "photo_url", nullable: true })
-    photoUrl?: string;
+    @Column({ nullable: true })
+    photo_url: string;
 
     @OneToMany(() => UniversityMajor, (universityMajor) => universityMajor.university)
     universityMajors: UniversityMajor[];

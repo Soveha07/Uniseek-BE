@@ -15,7 +15,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // enable cors for api
-  app.enableCors();
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3008'],  
+    methods: 'GET,POST,PATCH,DELETE',
+    credentials: true
+  });
+  
 
   // Apply Global Interceptor & Exception Filter
   app.useGlobalInterceptors(new ResponseInterceptor());
