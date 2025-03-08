@@ -3,40 +3,35 @@ import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { Public } from 'src/decorators/public.decorator';
+import { BookingStatus } from './entities/booking.entity';
 
 @Controller('bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) { }
 
-  @Public()
-  @Post('send-mail')
-  async registerUser(@Body('email') email: string) {
-    await this.bookingsService.sendWelcomeEmail(email);
-    return { message: 'Welcome email sent!' };
-  }
+  // @Public()
+  // @Post('/send-mail')
+  // async registerUser(@Body('email') email: string) {
+  //   await this.bookingsService.sendWelcomeEmail(email);
+  //   return { message: 'Welcome email sent!' };
+  // }
 
+  // Create a new booking
   @Post()
-  create(@Body() createBookingDto: CreateBookingDto) {
-    return this.bookingsService.create(createBookingDto);
+  createBooking(@Body() createBookingDto: CreateBookingDto) {
+    return this.bookingsService.createBooking(createBookingDto);
   }
 
-  @Get()
-  findAll() {
-    return this.bookingsService.findAll();
+  // Update status to "ongoing"
+  @Patch('/ongoing/:id')
+  updateStatusToOngoing(@Param('id') id: number) {
+    return this.bookingsService.updateStatus(id, BookingStatus.ONGOING);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bookingsService.findOne(+id);
+  // Update status to "completed"
+  @Patch('/completed/:id')
+  updateStatusToCompleted(@Param('id') id: number) {
+    return this.bookingsService.updateStatus(id, BookingStatus.COMPLETED);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto) {
-    return this.bookingsService.update(+id, updateBookingDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bookingsService.remove(+id);
-  }
 }

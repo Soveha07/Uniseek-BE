@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne
 import { MentorAvailability } from './mentor-availabilty.entity';
 import { University } from 'src/universities/entities/university.entity';
 import { Major } from 'src/majors/entities/major.entity';
+import { Booking } from 'src/bookings/entities/booking.entity';
 
 
 @Entity('mentors')
@@ -40,4 +41,7 @@ export class Mentor {
 
     @OneToMany(() => MentorAvailability, (availability) => availability.mentor)
     availabilities: MentorAvailability[];
+
+    @OneToMany(() => Booking, (booking) => booking.mentor)
+    bookings: Booking[];
 }
