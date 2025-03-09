@@ -115,4 +115,18 @@ export class BookingsService {
       throw new Error(error);
     }
   }
+
+  async getBookingsByMentorId(mentorId: number): Promise<Booking[]> {
+    return this.bookingRepository.find({
+      where: { mentor: { id: mentorId } },
+      relations: ['mentor', 'student'],
+    });
+  }
+
+  async getBookingsByStudentId(studentId: string): Promise<Booking[]> {
+    return this.bookingRepository.find({
+      where: { student: { uid: studentId } },
+      relations: ['student', 'mentor'],
+    });
+  }
 }

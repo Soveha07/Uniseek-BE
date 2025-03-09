@@ -3,7 +3,7 @@ import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { Public } from 'src/decorators/public.decorator';
-import { BookingStatus } from './entities/booking.entity';
+import { Booking, BookingStatus } from './entities/booking.entity';
 
 @Controller('bookings')
 export class BookingsController {
@@ -32,6 +32,16 @@ export class BookingsController {
   @Patch('/completed/:id')
   updateStatusToCompleted(@Param('id') id: number) {
     return this.bookingsService.updateStatus(id, BookingStatus.COMPLETED);
+  }
+
+  @Get('mentor/:mentorId')
+  getBookingsByMentor(@Param('mentorId') mentorId: number): Promise<Booking[]> {
+    return this.bookingsService.getBookingsByMentorId(mentorId);
+  }
+
+  @Get('student/:studentId')
+  getBookingsByStudent(@Param('studentId') studentId: string): Promise<Booking[]> {
+    return this.bookingsService.getBookingsByStudentId(studentId);
   }
 
 }
