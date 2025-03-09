@@ -1,5 +1,5 @@
 import { Student } from 'src/students/entities/student.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 
 
 @Entity('survey_response')
@@ -40,4 +40,7 @@ export class SurveyResponse {
     @ManyToOne(() => Student, (student) => student.surveyResponses)
     @JoinColumn({ name: 'student_id' })
     student: Student;
+
+    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    createdAt: Date;
 }

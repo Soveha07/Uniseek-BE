@@ -33,6 +33,7 @@ export class SurveyResponsesService {
     const newSurveyResponse = this.surveyResponseRepository.create({
       ...dto,
       student,
+      createdAt: new Date(),
     });
 
     const savedResponse = await this.surveyResponseRepository.save(newSurveyResponse);
