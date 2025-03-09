@@ -34,7 +34,7 @@ export class UniversitiesService {
 
       const university = await this.universitiesRepository.findOne({
         where: { id },
-        relations: relations // This should directly work with the array
+        relations: relations
       });
       
       if (!university) {
