@@ -6,6 +6,9 @@ import { Student } from 'src/students/entities/student.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { University } from 'src/universities/entities/university.entity';
+import { CareerField } from 'src/career-fields/entities/career-field.entity';
+import { getRepository } from "typeorm";
+// i don know why i cannot push the new update one
 
 @Injectable()
 export class SurveyResponsesService {
@@ -38,140 +41,85 @@ export class SurveyResponsesService {
     return responseWithoutStudent;
   }
 
-  async recommendUniversities(dto: CreateSurveyResponseDto): Promise<University[]> {
-    const universities = await this.universityRepository.find(); // Fetch all universities from DB
+  async recommendUniversities(dto: CreateSurveyResponseDto): Promise<{ university: University; score: number }[]> {
+    const universities = await this.universityRepository.find({
+      relations: ["universityCareerfields", "universityCareerfields.careerField"]
+    });
 
-    // Initialize scores with university ID as number
-    const universityScores = new Map<number, number>();
-    universities.forEach(university => universityScores.set(university.id, 0));
+    // Parse the budget range from the DTO
+    const { min: budgetMin, max: budgetMax } = this.parseBudgetRange(dto.budget);
 
-    switch (dto.futureCareer) {
-      case 'Technology & IT':
-        universityScores.set(1, (universityScores.get(1) || 0) + 8); // University ID 1
-        universityScores.set(3, (universityScores.get(3) || 0) + 6);
-        universityScores.set(5, (universityScores.get(5) || 0) + 8);
-        break;
-      case 'Healthcare & Medicine':
-        universityScores.set(4, (universityScores.get(4) || 0) + 10);
-        break;
-      case 'Business & Finance':
-        universityScores.set(5, (universityScores.get(5) || 0) + 7);
-        break;
-      case 'Engineering & Science':
-        universityScores.set(6, (universityScores.get(6) || 0) + 9);
-        break;
-      default:
-        console.log('Invalid future career selection');
+    const scoredUniversities: { university: University; score: number }[] = [];
+
+    for (const university of universities) {
+      let score = 0;
+
+      // Check if the university offers the selected career field
+      if (university.universityCareerfields.some(ucf => ucf.careerField.name === dto.futureCareer)) {
+        score += 25;
+        console.log("ucf", university);
+      }
+
+      // Extract university price range
+      const minPrice = university.minPrice || 0;
+      const maxPrice = university.maxPrice || Infinity;
+
+      // Compare university price with budget range
+      if (minPrice >= budgetMin && maxPrice <= budgetMax) {
+        score += 20; // Best match (within budget)
+        console.log("within price range", university);
+      } else if (minPrice <= budgetMax + 500) {
+        score += 10; // Slightly above budget but still reasonable
+        console.log("slighly above budget", university);
+      } else if (minPrice <= budgetMax + 1500) {
+        score += 5; // Within an acceptable range but not strictly within budget
+        console.log("within acceptable range but above budget", university);
+      }
+
+      if (university.scholarship === dto.scholarships) {
+        score += 10;
+        console.log("scholar", university);
+      }
+
+      if (university.exchange === dto.exchangeProgram) {
+        score += 10;
+        console.log("exch", university);
+      }
+
+      if (university.facility === dto.facilities) {
+        score += 10;
+        console.log("fac", university);
+      }
+
+      if (university.shift === dto.shift) {
+        score += 10;
+        console.log("shift", university);
+      }
+
+      if (university.classSize === dto.classSize) {
+        score += 10;
+        console.log("size", university);
+      }
+
+      scoredUniversities.push({ university, score });
     }
 
-    switch (dto.budget) {
-      case 'Less than $500':
-        universityScores.set(1, (universityScores.get(1) || 0) + 7);
-        universityScores.set(6, (universityScores.get(6) || 0) + 5);
-        break;
-      case '$500 - $1000':
-        universityScores.set(2, (universityScores.get(2) || 0) + 6);
-        break;
-      case '$1000 - $2000':
-        universityScores.set(3, (universityScores.get(3) || 0) + 8);
-        break;
-      case '$2000 - $3000':
-        universityScores.set(4, (universityScores.get(4) || 0) + 10);
-        break;
-      case '$4000 - $5000':
-        universityScores.set(5, (universityScores.get(5) || 0) + 12);
-        break;
-      case '$5000 - $6000':
-        universityScores.set(6, (universityScores.get(6) || 0) + 14);
-        break;
-      case 'More than $6000':
-        universityScores.set(7, (universityScores.get(7) || 0) + 15);
-        break;
-      default:
-        console.log('Invalid budget selection');
-    }
-
-    switch (dto.scholarships) {
-      case 'So much':
-        universityScores.set(1, (universityScores.get(1) || 0) + 3);
-        break;
-      case 'Neutral':
-        universityScores.set(3, (universityScores.get(3) || 0) + 5);
-        break;
-      case 'Not much':
-        universityScores.set(4, (universityScores.get(4) || 0) + 7);
-        break;
-      default:
-        console.log('Invalid scholarship selection');
-    }
-
-    switch (dto.exchangeProgram) {
-      case 'So much':
-        universityScores.set(1, (universityScores.get(1) || 0) + 9);
-        universityScores.set(2, (universityScores.get(2) || 0) + 4);
-        break;
-      case 'Neutral':
-        universityScores.set(3, (universityScores.get(3) || 0) + 6);
-        break;
-      case 'Not much':
-        universityScores.set(4, (universityScores.get(4) || 0) + 8);
-        break;
-      default:
-        console.log('Invalid exchange program selection');
-    }
-
-    switch (dto.facilities) {
-      case 'So much':
-        universityScores.set(1, (universityScores.get(1) || 0) + 10);
-        break;
-      case 'Neutral':
-        universityScores.set(2, (universityScores.get(2) || 0) + 7);
-        break;
-      case 'Not much':
-        universityScores.set(3, (universityScores.get(3) || 0) + 5);
-        break;
-      default:
-        console.log('Invalid facilities selection');
-    }
-
-    switch (dto.shift) {
-      case 'Only a shift 3 or 4 hours':
-        universityScores.set(1, (universityScores.get(1) || 0) + 6);
-        break;
-      case 'Full-time 8 hours':
-        universityScores.set(2, (universityScores.get(2) || 0) + 5);
-        break;
-      case 'Flexibility of timetable':
-        universityScores.set(3, (universityScores.get(3) || 0) + 4);
-        break;
-      default:
-        console.log('Invalid shift selection');
-    }
-
-    switch (dto.classSize) {
-      case 'Small class':
-        universityScores.set(1, (universityScores.get(1) || 0) + 7);
-        break;
-      case 'Flexible class (Depend on the study course)':
-        universityScores.set(2, (universityScores.get(2) || 0) + 6);
-        break;
-      default:
-        console.log('Invalid class size selection');
-    }
-
-    // Map scores back to university objects
-    const scoredUniversities = universities.map(university => ({
-      ...university,
-      score: universityScores.get(university.id) || 0,
-    }));
-
-    // Filter universities with score > 0
-    const universitiesWithScore = scoredUniversities.filter(university => university.score > 0);
-
-    // Sort the universities based on score and return the top 5 if there are more than 5, otherwise return all universities with score > 0
-    return universitiesWithScore.sort((a, b) => b.score - a.score).slice(0, 5);
+    scoredUniversities.sort((a, b) => b.score - a.score);
+    return scoredUniversities.slice(0, 5);
   }
 
+  parseBudgetRange(budget: string): { min: number; max: number } {
+    if (budget.includes("Less than")) {
+      const max = parseInt(budget.replace(/\D/g, ""), 10); // Extract number
+      return { min: 0, max: max };
+    } else if (budget.includes("More than")) {
+      const min = parseInt(budget.replace(/\D/g, ""), 10);
+      return { min: min, max: Infinity };
+    } else {
+      const [min, max] = budget.split("-").map(b => parseInt(b.replace(/\D/g, ""), 10));
+      return { min, max };
+    }
+  }
 
 
   findAll() {
