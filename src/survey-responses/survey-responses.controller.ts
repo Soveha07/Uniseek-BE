@@ -15,12 +15,13 @@ export class SurveyResponsesController {
       try {
         await this.surveyResponsesService.createSurveyResponse(createSurveyResponseDto);
       } catch (error) {
-        throw new BadRequestException(error.message);
+        throw new Error(error);
       }
       return await this.surveyResponsesService.recommendUniversities(createSurveyResponseDto);
     }
     catch (error) {
-      throw new BadRequestException(error.message);
+      console.log(error);
+      throw new Error(error);
     }
   }
 
@@ -30,6 +31,7 @@ export class SurveyResponsesController {
     try {
       return await this.surveyResponsesService.recommendUniversities(createSurveyResponseDto);
     } catch (error) {
+      console.log(error);
       throw new BadRequestException(error.message);
     }
   }

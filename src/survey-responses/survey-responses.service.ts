@@ -42,58 +42,85 @@ export class SurveyResponsesService {
   }
 
   async recommendUniversities(dto: CreateSurveyResponseDto): Promise<{ university: University; score: number }[]> {
-    const universities = await this.universityRepository.find({ relations: ["universityMajors"] });
-    const careerFieldRepository = getRepository(CareerField);
+    const universities = await this.universityRepository.find({
+      relations: ["universityCareerfields", "universityCareerfields.careerField"]
+    });
 
-    // Fetch all career fields from the database
-    const careerFields = await careerFieldRepository.find(); 
-    const validCareerFields = careerFields.map(field => field.name); // Extract valid career field names dynamically
+    // Parse the budget range from the DTO
+    const { min: budgetMin, max: budgetMax } = this.parseBudgetRange(dto.budget);
 
     const scoredUniversities: { university: University; score: number }[] = [];
 
     for (const university of universities) {
-        let score = 0;
+      let score = 0;
 
-        if (validCareerFields.includes(dto.futureCareer)) {
-            score += 25;
-        }
+      // Check if the university offers the selected career field
+      if (university.universityCareerfields.some(ucf => ucf.careerField.name === dto.futureCareer)) {
+        score += 25;
+        console.log("ucf", university);
+      }
 
-        const minPrice = university.minPrice || 0;
-        const maxPrice = university.maxPrice || Infinity;
-        const budgetLimit = parseInt(dto.budget.replace(/\D/g, ""), 10) || 500; // Extracts number from "Less than $500"
+      // Extract university price range
+      const minPrice = university.minPrice || 0;
+      const maxPrice = university.maxPrice || Infinity;
 
-        if (minPrice <= budgetLimit && maxPrice <= budgetLimit) {
-            score += 20;
-        } else if (minPrice <= budgetLimit + 200) { // Slightly above budget
-            score += 10;
-        }
+      // Compare university price with budget range
+      if (minPrice >= budgetMin && maxPrice <= budgetMax) {
+        score += 20; // Best match (within budget)
+        console.log("within price range", university);
+      } else if (minPrice <= budgetMax + 500) {
+        score += 10; // Slightly above budget but still reasonable
+        console.log("slighly above budget", university);
+      } else if (minPrice <= budgetMax + 1500) {
+        score += 5; // Within an acceptable range but not strictly within budget
+        console.log("within acceptable range but above budget", university);
+      }
 
-        if (university.scholarship === dto.scholarships) {
-            score += 10;
-        }
+      if (university.scholarship === dto.scholarships) {
+        score += 10;
+        console.log("scholar", university);
+      }
 
-        if (university.exchange === dto.exchangeProgram) {
-            score += 10;
-        }
+      if (university.exchange === dto.exchangeProgram) {
+        score += 10;
+        console.log("exch", university);
+      }
 
-        if (university.facility === dto.facilities) {
-            score += 10;
-        }
+      if (university.facility === dto.facilities) {
+        score += 10;
+        console.log("fac", university);
+      }
 
-        if (university.shift === dto.shift) {
-            score += 10;
-        }
+      if (university.shift === dto.shift) {
+        score += 10;
+        console.log("shift", university);
+      }
 
-        if (university.classSize === dto.classSize) {
-            score += 10;
-        }
+      if (university.classSize === dto.classSize) {
+        score += 10;
+        console.log("size", university);
+      }
 
-        scoredUniversities.push({ university, score });
+      scoredUniversities.push({ university, score });
     }
 
     scoredUniversities.sort((a, b) => b.score - a.score);
     return scoredUniversities.slice(0, 5);
   }
+
+  parseBudgetRange(budget: string): { min: number; max: number } {
+    if (budget.includes("Less than")) {
+      const max = parseInt(budget.replace(/\D/g, ""), 10); // Extract number
+      return { min: 0, max: max };
+    } else if (budget.includes("More than")) {
+      const min = parseInt(budget.replace(/\D/g, ""), 10);
+      return { min: min, max: Infinity };
+    } else {
+      const [min, max] = budget.split("-").map(b => parseInt(b.replace(/\D/g, ""), 10));
+      return { min, max };
+    }
+  }
+
 
   findAll() {
     return `This action returns all surveyResponses`;
