@@ -17,4 +17,5 @@ export class ShowUniversityDto {
     shift: string;
     photo_url: string;
     universityMajors?: UniversityMajor[];
+    score?: number;
 }

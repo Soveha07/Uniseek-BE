@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { University } from 'src/universities/entities/university.entity';
 import { CareerField } from 'src/career-fields/entities/career-field.entity';
 import { getRepository } from "typeorm";
+import { ShowUniversityDto } from 'src/universities/dto/show-university.dto';
 // i don know why i cannot push the new update one
 
 @Injectable()
@@ -42,7 +43,7 @@ export class SurveyResponsesService {
     return responseWithoutStudent;
   }
 
-  async recommendUniversities(dto: CreateSurveyResponseDto): Promise<{ university: University; score: number }[]> {
+  async recommendUniversities(dto: CreateSurveyResponseDto): Promise<ShowUniversityDto[]> {
     const universities = await this.universityRepository.find({
       relations: ["universityCareerfields", "universityCareerfields.careerField"]
     });
@@ -50,7 +51,7 @@ export class SurveyResponsesService {
     // Parse the budget range from the DTO
     const { min: budgetMin, max: budgetMax } = this.parseBudgetRange(dto.budget);
 
-    const scoredUniversities: { university: University; score: number }[] = [];
+    const scoredUniversities: ShowUniversityDto[] = [];
 
     for (const university of universities) {
       let score = 0;
@@ -102,11 +103,31 @@ export class SurveyResponsesService {
         console.log("size", university);
       }
 
-      scoredUniversities.push({ university, score });
+      // Create a ShowUniversityDto object with the calculated score
+      const showUniversityDto: ShowUniversityDto = {
+        id: university.id,
+        name: university.name,
+        location: university.location,
+        description: university.description,
+        total_enrollment: university.totalEnrollment,
+        min_price: university.minPrice,
+        max_price: university.maxPrice,
+        university_type: university.universityType as string,
+        class_size: university.classSize as string,
+        scholarship: university.scholarship as string,
+        exchange: university.exchange as string,
+        facility: university.facility as string,
+        shift: university.shift as string,
+        photo_url: university.photoUrl,
+        universityMajors: university.universityMajors,
+        score: score // Include the score in the DTO
+      };
+
+      scoredUniversities.push(showUniversityDto);
     }
 
-    scoredUniversities.sort((a, b) => b.score - a.score);
-    return scoredUniversities.slice(0, 5);
+    scoredUniversities.sort((a, b) => b.score - a.score); // Sort by score descending
+    return scoredUniversities.slice(0, 5); // Return the top 5 scored universities
   }
 
   parseBudgetRange(budget: string): { min: number; max: number } {
