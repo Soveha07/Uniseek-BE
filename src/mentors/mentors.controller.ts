@@ -35,6 +35,20 @@ export class MentorsController {
   }
 
   @Public()
+  @Get('filter')
+  async findByMajorAndUniversity(
+    @Query('majorId', ParseIntPipe) majorId: number,
+    @Query('universityId', ParseIntPipe) universityId: number
+  ) {
+    const mentors = await this.mentorsService.findByMajorAndUniversity(majorId, universityId);
+    return {
+      status: 'success',
+      timestamp: new Date().toLocaleString(),
+      data: mentors
+    };
+  }
+
+  @Public()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const mentor = await this.mentorsService.findOne(id);

@@ -91,4 +91,21 @@ export class MentorsService {
       throw new NotFoundException(`Mentor with ID ${id} not found`);
     }
   }
+
+  async findByMajorAndUniversity(majorId: number, universityId: number): Promise<Mentor[]> {
+    try {
+      const mentors = await this.mentorsRepository.find({
+        where: {
+          majorId: majorId,
+          universityId: universityId
+        },
+        relations: ['university', 'major']
+      });
+      
+      return mentors;
+    } catch (error) {
+      console.error('Error finding mentors by major and university:', error);
+      throw error;
+    }
+  }
 }
