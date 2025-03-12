@@ -9,6 +9,7 @@ import { Public } from '../decorators/public.decorator';
 export class MentorsController {
   constructor(private readonly mentorsService: MentorsService) { }
 
+  @Public()
   @Post()
   async create(@Body() createMentorDto: CreateMentorDto) {
     const mentor = await this.mentorsService.create(createMentorDto);
@@ -47,8 +48,7 @@ export class MentorsController {
       data: mentors
     };
   }
-
-  @Public()
+  
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const mentor = await this.mentorsService.findOne(id);

@@ -4,12 +4,15 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import { MentorsService } from 'src/mentors/mentors.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         @Inject(forwardRef(() => StudentsService))
         private readonly studentService: StudentsService,
+        @Inject(forwardRef(() => MentorsService))
+        private readonly mentorService: MentorsService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
     ) { }
@@ -117,5 +120,69 @@ export class AuthService {
             refreshToken: tokens.refreshToken,
         };
     }
+
+    async validateMentor(email: string, password: string): Promise<any> {
+        const mentor = await this.mentorService.findByEmail(email);
+
+        if (!mentor) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        if (mentor.password) {
+            const isPasswordValid = await bcrypt.compare(password, mentor.password);
+
+            if (isPasswordValid) {
+                const { password, ...result } = mentor;
+                return result;
+
+            }
+        }
+
+        const secretKey = this.configService.get<string>("JWT_SECRET_KEY");
+        const currentDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD format
+        const hashBase = `${email}${secretKey}${currentDate}`;
+        console.log("hashBase", hashBase);
+        const generatedHash = crypto.createHash('md5').update(hashBase).digest('hex');
+        console.log("generatedHash", generatedHash);
+
+        if (password === generatedHash) {
+            const { password, ...result } = mentor;
+            return result;
+        }
+
+        throw new UnauthorizedException('Invalid credentials');
+    }
+
+    async mentorLogin(mentor: any): Promise<{ mentorId: string, accessToken: string }> {
+        try {
+            console.log('Mentor data:', mentor);
+
+            // Ensure tokens are generated successfully
+            const tokens = await this.generateTokens(mentor.email, mentor.id, "mentor");
+
+            // Debugging: log the generated tokens
+            console.log('Generated tokens:', tokens);
+
+            // Hash the refresh token and update it in the database
+            // const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+            // await this.mentorService.updateRefreshToken(mentor.id, hashedRefreshToken);
+
+            // Check if student or student.uid is missing
+            if (!mentor || !mentor.id) {
+                throw new InternalServerErrorException("Mentor data is missing");
+            }
+
+            // Return the student data along with the access and refresh tokens
+            return {
+                mentorId: mentor.id,
+                accessToken: tokens.accessToken,
+                // refreshToken: tokens.refreshToken,
+            };
+        } catch (error) {
+            console.error('Error during login:', error); // Log the error for debugging
+            throw new InternalServerErrorException('An error occurred during login');
+        }
+    }
+
 
 }

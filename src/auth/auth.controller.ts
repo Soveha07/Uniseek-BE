@@ -68,4 +68,11 @@ export class AuthController {
     //   refreshToken: user.refreshToken,
     // });
   }
+
+  @Public()
+  @Post('/mentor/login')
+  async mentorLogin(@Body() body: { email: string; password: string }) {
+    const mentor = await this.authService.validateMentor(body.email, body.password);
+    return await this.authService.mentorLogin(mentor);
+  }
 }

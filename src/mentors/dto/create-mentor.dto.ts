@@ -4,16 +4,16 @@ export class CreateMentorDto {
   @IsString()
   @MinLength(2)
   @MaxLength(100)
-  full_name: string;
+  fullName: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(500)
   description?: string;
 
-  @IsString()
-  @IsOptional()
-  profile_url?: string;
+  // @IsString()
+  // @IsOptional()
+  // profileUrl?: string;
 
   @IsInt()
   @IsOptional()
@@ -34,9 +34,9 @@ export class CreateMentorDto {
 
   @IsString()
   @IsOptional()
-  phone_number?: string;
+  phoneNumber?: string;
 
   @IsString()
   @IsOptional()
-  telegram_link?: string;
+  telegramLink?: string;
 }
