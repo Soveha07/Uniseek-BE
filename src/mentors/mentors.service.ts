@@ -135,4 +135,35 @@ export class MentorsService {
     return this.mentorsRepository.findOne({ where: { email } });
   }
 
+  async getMentorSchedule(mentorId: number) {
+    try {
+      const mentor = await this.mentorsRepository.findOne({
+        where: { id: mentorId },
+        relations: ['availabilities', 'availabilities.timeslots']
+      });
+
+      if (!mentor) {
+        throw new NotFoundException(`Mentor with ID ${mentorId} not found`);
+      }
+
+      const availableDays = mentor.availabilities.map(a => a.dayOfWeek);
+      const availableTimes = {};
+      
+      mentor.availabilities.forEach(availability => {
+        availableTimes[availability.dayOfWeek] = availability.timeslots.map(
+          timeslot => timeslot.availableTime
+        );
+      });
+      
+      return {
+        mentorId,
+        availableDays,
+        availableTimes
+      };
+    } catch (error) {
+      console.error('Error fetching mentor schedule:', error);
+      throw error;
+    }
+  }
+
 }

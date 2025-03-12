@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, ClassSerializerInterceptor, UseInterceptors, NotFoundException } from '@nestjs/common';
 import { MentorsService } from './mentors.service';
 import { CreateMentorDto } from './dto/create-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
@@ -49,6 +49,7 @@ export class MentorsController {
     };
   }
   
+  @Public()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const mentor = await this.mentorsService.findOne(id);
@@ -56,6 +57,25 @@ export class MentorsController {
       status: 'success',
       data: mentor
     };
+  }
+
+  @Public()
+  @Get(':id/schedule')
+  async getMentorSchedule(@Param('id', ParseIntPipe) id: number) {
+    try {
+      const schedule = await this.mentorsService.getMentorSchedule(id);
+      
+      return {
+        status: 'success',
+        timestamp: new Date().toLocaleString(),
+        data: schedule
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
   }
 
   @Patch(':id')
