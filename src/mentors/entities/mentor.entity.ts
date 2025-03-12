@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { University } from '../../universities/entities/university.entity';
 import { Major } from '../../majors/entities/major.entity';
+import { MentorAvailability } from './mentor-availability.entity';
 
 @Entity('mentors')
 export class Mentor {
@@ -41,4 +42,7 @@ export class Mentor {
   @ManyToOne(() => Major)
   @JoinColumn({ name: 'major_id' })
   major: Major;
+
+  @OneToMany(() => MentorAvailability, availability => availability.mentor)
+  availabilities: MentorAvailability[];
 }

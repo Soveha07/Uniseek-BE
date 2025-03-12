@@ -12,7 +12,7 @@ export class MentorsService {
   constructor(
     @InjectRepository(Mentor)
     private mentorsRepository: Repository<Mentor>,
-  ) {}
+  ) { }
 
   async create(createMentorDto: CreateMentorDto): Promise<Mentor> {
     // Hash password if provided
@@ -20,18 +20,18 @@ export class MentorsService {
       const salt = await bcrypt.genSalt();
       createMentorDto.password = await bcrypt.hash(createMentorDto.password, salt);
     }
-    
+
     const mentor = this.mentorsRepository.create(createMentorDto);
     return await this.mentorsRepository.save(mentor);
   }
 
   async findAll(page: number = 1, limit: number = 10): Promise<{ mentors: Mentor[]; total: number }> {
     console.log(`Finding mentors with page=${page}, limit=${limit}`);
-    
+
     const skip = (page - 1) * limit;
-    
+
     console.log(`Using skip=${skip}, take=${limit}`);
-    
+
     try {
       const [mentors, total] = await this.mentorsRepository.findAndCount({
         relations: ['university', 'major'],
@@ -41,10 +41,10 @@ export class MentorsService {
           fullName: 'ASC',
         },
       });
-      
+
       console.log(`Found ${mentors.length} mentors out of ${total} total`);
       console.log('First mentor:', mentors[0]);
-      
+
       return {
         mentors,
         total,
@@ -60,33 +60,33 @@ export class MentorsService {
       where: { id },
       relations: ['university', 'major'],
     });
-  
+
     if (!mentor) {
       throw new NotFoundException(`Mentor with ID ${id} not found`);
     }
-  
-    return new ShowMentorDto(mentor); 
+
+    return new ShowMentorDto(mentor);
   }
-  
+
 
   async update(id: number, updateMentorDto: UpdateMentorDto): Promise<Mentor> {
     if (updateMentorDto.password) {
       const salt = await bcrypt.genSalt();
       updateMentorDto.password = await bcrypt.hash(updateMentorDto.password, salt);
     }
-    
+
     const result = await this.mentorsRepository.update(id, updateMentorDto);
-    
+
     if (result.affected === 0) {
       throw new NotFoundException(`Mentor with ID ${id} not found`);
     }
-    
+
     return this.mentorsRepository.findOne({ where: { id } });
   }
 
   async remove(id: number): Promise<void> {
     const result = await this.mentorsRepository.delete(id);
-    
+
     if (result.affected === 0) {
       throw new NotFoundException(`Mentor with ID ${id} not found`);
     }
@@ -94,17 +94,46 @@ export class MentorsService {
 
   async findByMajorAndUniversity(majorId: number, universityId: number): Promise<Mentor[]> {
     try {
-      const mentors = await this.mentorsRepository.find({
-        where: {
-          majorId: majorId,
-          universityId: universityId
-        },
-        relations: ['university', 'major']
+      const mentors = await this.mentorsRepository.findBy({
+        majorId: majorId,
+        universityId: universityId
       });
-      
+
       return mentors;
     } catch (error) {
       console.error('Error finding mentors by major and university:', error);
+      throw error;
+    }
+  }
+
+  async getMentorSchedule(mentorId: number) {
+    try {
+      // Find the mentor and their availability data
+      const mentor = await this.mentorsRepository.findOne({
+        where: { id: mentorId },
+        relations: ['availabilities', 'availabilities.timeslots']
+      });
+
+      if (!mentor) {
+        throw new NotFoundException(`Mentor with ID ${mentorId} not found`);
+      }
+
+      const availableDays = mentor.availabilities.map(a => a.dayOfWeek);
+      const availableTimes = {};
+      
+      mentor.availabilities.forEach(availability => {
+        availableTimes[availability.dayOfWeek] = availability.timeslots.map(
+          timeslot => timeslot.availableTime
+        );
+      });
+      
+      return {
+        mentorId,
+        availableDays,
+        availableTimes
+      };
+    } catch (error) {
+      console.error('Error fetching mentor schedule:', error);
       throw error;
     }
   }
