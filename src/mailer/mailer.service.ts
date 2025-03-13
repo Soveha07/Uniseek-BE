@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
+import { formatTime } from 'src/helpers/timeFormat';
 
 @Injectable()
 export class MailerService {
@@ -26,6 +27,7 @@ export class MailerService {
         mentorName: string
     ) {
         try {
+            const formattedTime = formatTime(bookingTime);
             const htmlContent = `
             <div
                 style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
@@ -39,7 +41,7 @@ export class MailerService {
             
                 <div style="background-color: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
                     <p style="margin: 5px 0; font-size: 16px;"><strong>📆 Date:</strong> ${bookingDay}</p>
-                    <p style="margin: 5px 0; font-size: 16px;"><strong>⏰ Time:</strong> ${bookingTime}</p>
+                    <p style="margin: 5px 0; font-size: 16px;"><strong>⏰ Time:</strong> ${formattedTime}</p>
                     <p style="margin: 5px 0; font-size: 16px;"><strong>📧 Student Email:</strong> ${studentEmail}</p>
                     <p style="margin: 5px 0; font-size: 16px;"><strong>📞 Contact Number:</strong> ${studentPhone}</p>
                 </div>
@@ -89,6 +91,7 @@ export class MailerService {
         studentName: string
     ) {
         try {
+            const formattedTime = formatTime(bookingTime);
             const htmlContent = `
             <div
                 style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
@@ -107,7 +110,7 @@ export class MailerService {
 
                 <div style="background-color: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
                     <p style="margin: 5px 0; font-size: 16px;"><strong>📆 Date:</strong> ${bookingDay}</p>
-                    <p style="margin: 5px 0; font-size: 16px;"><strong>⏰ Time:</strong> ${bookingTime}</p>
+                    <p style="margin: 5px 0; font-size: 16px;"><strong>⏰ Time:</strong> ${formattedTime}</p>
                 </div>
 
                 <h2 style="color: #007bff; text-align: center;">📩 Stay Tuned for Updates</h2>

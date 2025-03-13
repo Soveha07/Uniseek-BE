@@ -1,3 +1,4 @@
+import { Mentor } from "src/mentors/entities/mentor.entity";
 import { UniversityMajor } from "src/universities/entities/university-major.entity";
 import { University } from "src/universities/entities/university.entity";
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -18,4 +19,7 @@ export class Major {
 
     @OneToMany(() => UniversityMajor, (universityMajor) => universityMajor.major)
     universityMajors: UniversityMajor[];
+
+    @OneToMany(() => Mentor, (mentor) => mentor.major)
+    mentors: Mentor[];
 }

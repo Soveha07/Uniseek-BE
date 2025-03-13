@@ -126,7 +126,8 @@ export class BookingsService {
   async getBookingsByStudentId(studentId: string): Promise<Booking[]> {
     return this.bookingRepository.find({
       where: { student: { uid: studentId } },
-      relations: ['student', 'mentor'],
+      relations: ['mentor', 'mentor.major', 'mentor.university'], // Fetching major and university of the mentor
     });
   }
+
 }

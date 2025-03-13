@@ -35,7 +35,7 @@ export class Mentor {
     @JoinColumn({ name: 'university_id' })
     university: University
 
-    @OneToOne(() => Major)
+    @ManyToOne(() => Major, (major) => major.mentors)
     @JoinColumn({ name: 'major_id' })
     major: Major
 
