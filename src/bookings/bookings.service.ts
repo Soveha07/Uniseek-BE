@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { MailerService } from 'src/mailer/mailer.service';
@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Student } from 'src/students/entities/student.entity';
 import { Mentor } from 'src/mentors/entities/mentor.entity';
 import { StatusCodes } from 'src/enums/statusCodes';
+import { NoPhoneNumberException } from 'src/filters/customExceptions/NoPhoneNumber.exception';
 
 @Injectable()
 export class BookingsService {
@@ -41,6 +42,10 @@ export class BookingsService {
       // Fetch the actual Student and Mentor entities
       const student = await this.studentRepository.findOne({ where: { uid: student_id } });
       const mentor = await this.mentorRepository.findOne({ where: { id: mentor_id } });
+
+      if (!student.phoneNumber) {
+        throw new NoPhoneNumberException();
+      }
 
       await this.mailerService.sendBookingMailMentor(
         mentor.email,

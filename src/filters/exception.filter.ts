@@ -1,34 +1,60 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, InternalServerErrorException } from '@nestjs/common';
+import {
+    ExceptionFilter,
+    Catch,
+    ArgumentsHost,
+    HttpException,
+    HttpStatus,
+} from '@nestjs/common';
 import { Response } from 'express';
-import { stat } from 'fs';
-import { StatusCodes } from 'src/enums/statusCodes';
 import { QueryFailedError } from 'typeorm';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-    catch(exception: any, host: ArgumentsHost) {
+    catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
 
-        let status = StatusCodes.InternalServerError; // Internal Server Error
+        let status = HttpStatus.INTERNAL_SERVER_ERROR; // Default to 500 Internal Server Error
         let message = 'Internal server error';
+        let errorCode: string | undefined; // Optional error code
 
-        // If the error is an instance of HttpException, use its status and message
+        // Handle HttpException (including custom exceptions)
         if (exception instanceof HttpException) {
             status = exception.getStatus();
-            const responseMessage = exception.getResponse();
-            message = typeof responseMessage === 'string' ? responseMessage : (responseMessage as any).message || 'An error occurred';
+            const exceptionResponse = exception.getResponse();
+
+            // Extract message and errorCode from the exception response
+            if (typeof exceptionResponse === 'string') {
+                message = exceptionResponse;
+            } else {
+                message = (exceptionResponse as any).message || 'An error occurred';
+                errorCode = (exceptionResponse as any).errorCode; // Extract errorCode if it exists
+            }
         }
-        // If the error is a QueryFailedError from TypeORM, return a proper error message
+        // Handle TypeORM QueryFailedError
         else if (exception instanceof QueryFailedError) {
-            status = StatusCodes.BadRequest; // Bad Request
-            message = (exception as any).message || 'Database query failed';
+            status = HttpStatus.BAD_REQUEST; // 400 Bad Request
+            message = 'Database query failed';
+        }
+        // Handle other errors (e.g., unexpected errors)
+        else if (exception instanceof Error) {
+            message = exception.message || 'An unexpected error occurred';
+            errorCode = (exception as any).errorCode; // Extract errorCode if it exists
         }
 
-        response.status(status).json({
+        // Construct the response object
+        const responseBody: any = {
             status: status,
-            timestamp: new Date(new Date().toISOString()).toLocaleString(),
-            message: typeof message === 'string' ? message : (message as any).message || 'An error occurred',
-        });
+            timestamp: new Date().toISOString(),
+            message: message,
+        };
+
+        // Add errorCode to the response if it exists
+        if (errorCode) {
+            responseBody.errorCode = errorCode;
+        }
+
+        // Send the response
+        response.status(status).json(responseBody);
     }
 }

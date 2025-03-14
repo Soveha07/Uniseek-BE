@@ -4,5 +4,8 @@ export enum StatusCodes {
     BadRequest = 400,
     Forbidden = 403,
     NotFound = 404,
-    InternalServerError = 500
+    InternalServerError = 500,
+
+    //Custom status codes
+    NoPhoneNumber = 1000
 }
