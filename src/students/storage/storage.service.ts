@@ -43,7 +43,6 @@ export class StorageService {
       });
       this.logger.log('S3 client initialized successfully');
       
-      // Ensure local storage directory exists
       this.ensureLocalStorageDirectory();
     } catch (error) {
       this.logger.error(`Failed to initialize storage: ${error.message}`);
@@ -62,9 +61,7 @@ export class StorageService {
     }
   }
 
-  /**
-   * Upload a file to both Digital Ocean Spaces and local storage
-   */
+
   async uploadFile(file: Express.Multer.File, path: string): Promise<string> {
     if (!file) {
       throw new Error('No file provided');
@@ -77,7 +74,7 @@ export class StorageService {
     this.logger.log(`Uploading file: ${fileName} to path: ${key}`);
 
     try {
-      // 1. Upload to Digital Ocean Spaces
+      // Upload to Digital Ocean Spaces
       const command = new PutObjectCommand({
         Bucket: this.bucket,
         Key: key,
@@ -88,10 +85,9 @@ export class StorageService {
 
       await this.s3Client.send(command);
       
-      // 2. Save locally as backup
+      // Save locally as backup
       await this.saveFileLocally(file.buffer, key);
       
-      // Construct URL in DO Spaces format
       const fileUrl = `https://${this.bucket}.${this.endpoint}/${key}`;
       this.logger.log(`File uploaded successfully. URL: ${fileUrl}`);
       
@@ -102,31 +98,23 @@ export class StorageService {
     }
   }
 
-  /**
-   * Save file to local storage as backup
-   */
+  // Save to local
   private async saveFileLocally(fileBuffer: Buffer, key: string): Promise<void> {
     try {
-      // Create directory structure if it doesn't exist
       const filePath = path.join(this.localStoragePath, key);
       const directory = path.dirname(filePath);
       
       if (!fs.existsSync(directory)) {
         await mkdir(directory, { recursive: true });
       }
-      
-      // Write file to local storage
+
       await writeFile(filePath, fileBuffer);
       this.logger.log(`File saved locally at: ${filePath}`);
     } catch (error) {
-      // Don't fail the whole operation if local storage fails
       this.logger.error(`Failed to save file locally: ${error.message}`);
     }
   }
 
-  /**
-   * Update an existing file - delete old one and upload new one
-   */
   async updateFile(file: Express.Multer.File, oldKey: string): Promise<string> {
     if (!file) {
       throw new Error('No file provided');
@@ -134,7 +122,6 @@ export class StorageService {
 
     this.logger.log(`Updating file with key: ${oldKey}`);
 
-    // Try to delete the old file if it exists
     try {
       await this.deleteFile(oldKey);
       this.logger.log(`Old file deleted: ${oldKey}`);
@@ -142,23 +129,18 @@ export class StorageService {
       this.logger.warn(`Could not delete old file (may not exist): ${error.message}`);
     }
 
-    // Extract the path from the old key
     const pathParts = oldKey.split('/');
     pathParts.pop();
     const dirPath = pathParts.join('/');
-    
-    // Upload the new file
     return this.uploadFile(file, dirPath);
   }
 
-  /**
-   * Delete a file from both Digital Ocean Spaces and local storage
-   */
+
   async deleteFile(key: string): Promise<void> {
     this.logger.log(`Deleting file: ${key}`);
     
     try {
-      // 1. Delete from Digital Ocean Spaces
+      // Delete from Digital Ocean Spaces
       const command = new DeleteObjectCommand({
         Bucket: this.bucket,
         Key: key,
@@ -167,7 +149,7 @@ export class StorageService {
       await this.s3Client.send(command);
       this.logger.log(`File deleted from Digital Ocean: ${key}`);
       
-      // 2. Delete from local storage if it exists
+      // Delete from local storage if it exists
       await this.deleteFileLocally(key);
     } catch (error) {
       this.logger.error(`Error deleting file: ${error.message}`);
@@ -175,9 +157,6 @@ export class StorageService {
     }
   }
 
-  /**
-   * Delete file from local storage
-   */
   private async deleteFileLocally(key: string): Promise<void> {
     try {
       const filePath = path.join(this.localStoragePath, key);
@@ -187,14 +166,11 @@ export class StorageService {
         this.logger.log(`File deleted locally: ${filePath}`);
       }
     } catch (error) {
-      // Don't fail the whole operation if local deletion fails
       this.logger.error(`Failed to delete file locally: ${error.message}`);
     }
   }
 
-  /**
-   * Generate a signed URL for temporary access
-   */
+
   async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
     this.logger.log(`Generating signed URL for: ${key}`);
     
@@ -211,9 +187,7 @@ export class StorageService {
     }
   }
   
-  /**
-   * Extract the file key from a full URL
-   */
+
   extractKeyFromUrl(url: string): string {
     this.logger.log(`Extracting key from URL: ${url}`);
     
@@ -229,9 +203,6 @@ export class StorageService {
     return url;
   }
 
-  /**
-   * Check if a file exists
-   */
   async fileExists(key: string): Promise<boolean> {
     try {
       const command = new HeadObjectCommand({
@@ -246,9 +217,6 @@ export class StorageService {
     }
   }
   
-  /**
-   * Sanitize filename to prevent issues
-   */
   private sanitizeFileName(fileName: string): string {
     return fileName
       .replace(/\s+/g, '-')           

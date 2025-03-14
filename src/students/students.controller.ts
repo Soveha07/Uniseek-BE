@@ -72,11 +72,9 @@ export class StudentsController {
 
       this.logger.debug(`File info: ${file.originalname}, size: ${file.size}, type: ${file.mimetype}`);
 
-      // Upload file to specific path for this student
       const imageUrl = await this.storageService.uploadFile(file, `students/${uid}/profile`);
       this.logger.debug(`File uploaded with URL: ${imageUrl}`);
 
-      // Save the image URL to the student record
       await this.studentsService.updateProfileImage(uid, imageUrl);
       this.logger.log(`Profile image updated for student ${uid}`);
 
@@ -92,9 +90,6 @@ export class StudentsController {
     }
   }
 
-  /**
-   * Update an existing profile image
-   */
   @Public()
   @Post('/update-profile-image/:uid')
   @UseInterceptors(FileInterceptor('image'))
@@ -117,18 +112,15 @@ export class StudentsController {
 
       let imageUrl: string;
 
-      // If we have a current image URL, extract the key and update the file
       if (body.currentImageUrl) {
         this.logger.debug(`Current image URL: ${body.currentImageUrl}`);
         const key = this.storageService.extractKeyFromUrl(body.currentImageUrl);
         imageUrl = await this.storageService.updateFile(file, key);
       } else {
-        // No existing image, upload as a new file
         this.logger.debug('No current image URL provided, uploading as new image');
         imageUrl = await this.storageService.uploadFile(file, `students/${uid}/profile`);
       }
 
-      // Save the new URL to the student record
       await this.studentsService.updateProfileImage(uid, imageUrl);
       this.logger.log(`Profile image updated for student ${uid}`);
 
@@ -144,9 +136,6 @@ export class StudentsController {
     }
   }
 
-  /**
-   * Simple test endpoint to check Space configuration
-   */
   @Public()
   @Get('/test-space-config')
   testSpaceConfig() {
@@ -157,5 +146,4 @@ export class StudentsController {
       fullUrl: `https://${this.storageService['bucket']}.${this.storageService['endpoint']}/example/path.jpg`,
     };
   }
-
 }
