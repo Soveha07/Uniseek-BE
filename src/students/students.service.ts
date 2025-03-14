@@ -116,4 +116,14 @@ export class StudentsService {
   async create(user: CreateStudentGoogleDto) {
     return this.studentRepository.save(user);
   }
+
+  async updateProfileImage(uid: string, imageUrl: string): Promise<Student> {
+    const student = await this.findById(uid);
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${uid} not found`);
+    }
+    
+    student.photoURL = imageUrl;
+    return this.studentRepository.save(student);
+  }
 }
