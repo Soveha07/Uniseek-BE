@@ -127,6 +127,7 @@ export class BookingsService {
     return this.bookingRepository.find({
       where: { student: { uid: studentId } },
       relations: ['mentor', 'mentor.major', 'mentor.university'], // Fetching major and university of the mentor
+      order: { bookedAt: 'DESC' }, // Adding orderBy clause for bookedAt column
     });
   }
 
