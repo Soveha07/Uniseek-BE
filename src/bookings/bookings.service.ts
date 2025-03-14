@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { MailerService } from 'src/mailer/mailer.service';
@@ -7,6 +7,7 @@ import { Booking, BookingStatus } from './entities/booking.entity';
 import { Repository } from 'typeorm';
 import { Student } from 'src/students/entities/student.entity';
 import { Mentor } from 'src/mentors/entities/mentor.entity';
+import { StatusCodes } from 'src/enums/statusCodes';
 
 @Injectable()
 export class BookingsService {
@@ -34,50 +35,54 @@ export class BookingsService {
   // }
 
   async createBooking(createBookingDto: CreateBookingDto): Promise<void> {
-    const { student_id, mentor_id, day, time } = createBookingDto;
+    try {
+      const { student_id, mentor_id, day, time } = createBookingDto;
 
-    // Fetch the actual Student and Mentor entities
-    const student = await this.studentRepository.findOne({ where: { uid: student_id } });
-    const mentor = await this.mentorRepository.findOne({ where: { id: mentor_id } });
+      // Fetch the actual Student and Mentor entities
+      const student = await this.studentRepository.findOne({ where: { uid: student_id } });
+      const mentor = await this.mentorRepository.findOne({ where: { id: mentor_id } });
 
-    await this.mailerService.sendBookingMailMentor(
-      mentor.email,
-      student.displayName,
-      day,
-      time,
-      student.email,
-      student.phoneNumber,
-      mentor.fullName,
-    );
+      await this.mailerService.sendBookingMailMentor(
+        mentor.email,
+        student.displayName,
+        day,
+        time,
+        student.email,
+        student.phoneNumber,
+        mentor.fullName,
+      );
 
-    await this.mailerService.sendBookingMailStudent(
-      student.email,
-      mentor.fullName,
-      mentor.email,
-      mentor.phoneNumber,
-      day,
-      time,
-      student.displayName,
-    );
+      await this.mailerService.sendBookingMailStudent(
+        student.email,
+        mentor.fullName,
+        mentor.email,
+        mentor.phoneNumber,
+        day,
+        time,
+        student.displayName,
+      );
 
-    if (!student) {
-      throw new NotFoundException(`Student with ID ${student_id} not found`);
+      if (!student) {
+        throw new NotFoundException(`Student with ID ${student_id} not found`);
+      }
+      if (!mentor) {
+        throw new NotFoundException(`Mentor with ID ${mentor_id} not found`);
+      }
+
+      const newBooking = this.bookingRepository.create({
+        student, // Assign the full entity
+        mentor,
+        day,
+        time,
+        bookedAt: new Date(), // Current timestamp
+      });
+
+      await this.bookingRepository.save(newBooking);
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-    if (!mentor) {
-      throw new NotFoundException(`Mentor with ID ${mentor_id} not found`);
-    }
-
-    const newBooking = this.bookingRepository.create({
-      student, // Assign the full entity
-      mentor,
-      day,
-      time,
-      bookedAt: new Date(), // Current timestamp
-    });
-
-    await this.bookingRepository.save(newBooking);
   }
-
 
   // 2️⃣ & 3️⃣ Update status (Reusable for both "ongoing" & "completed")
   async updateStatus(id: number, status: BookingStatus): Promise<void> {
@@ -86,12 +91,13 @@ export class BookingsService {
         where: { id },
         relations: ['student', 'mentor']  // Load the student relation
       });
-      const student = await this.studentRepository.findOne({ where: { uid: booking.student.uid } });
-      const mentor = await this.mentorRepository.findOne({ where: { id: booking.mentor.id } });
 
       if (!booking) {
-        throw new NotFoundException(`Booking with ID ${id} not found`);
+        throw new HttpException(`Booking with ID ${id} not found`, StatusCodes.NotFound);
       }
+
+      const student = await this.studentRepository.findOne({ where: { uid: booking.student.uid } });
+      const mentor = await this.mentorRepository.findOne({ where: { id: booking.mentor.id } });
 
       if (status === BookingStatus.ONGOING) {
         console.log("ongoing");
@@ -112,7 +118,7 @@ export class BookingsService {
       await this.bookingRepository.save(booking);
     } catch (error) {
       console.log(error);
-      throw new Error(error);
+      throw error;
     }
   }
 

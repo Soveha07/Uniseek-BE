@@ -3,6 +3,7 @@ import { MentorsService } from './mentors.service';
 import { CreateMentorDto } from './dto/create-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
 import { Public } from '../decorators/public.decorator';
+import { StatusCodes } from 'src/enums/statusCodes';
 
 @Controller('mentors')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -14,7 +15,7 @@ export class MentorsController {
   async create(@Body() createMentorDto: CreateMentorDto) {
     const mentor = await this.mentorsService.create(createMentorDto);
     return {
-      status: 'success',
+      status: StatusCodes.Success,
       data: mentor
     };
   }
@@ -27,7 +28,7 @@ export class MentorsController {
   ) {
     const { mentors, total } = await this.mentorsService.findAll(+page, +limit);
     return {
-      status: 'success',
+      status: StatusCodes.Success,
       data: mentors,
       total,
       page: +page,
@@ -43,7 +44,7 @@ export class MentorsController {
   ) {
     const mentors = await this.mentorsService.findByMajorAndUniversity(majorId, universityId);
     return {
-      status: 'success',
+      status: StatusCodes.Success,
       timestamp: new Date().toLocaleString(),
       data: mentors
     };
@@ -54,7 +55,7 @@ export class MentorsController {
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const mentor = await this.mentorsService.findOne(id);
     return {
-      status: 'success',
+      status: StatusCodes.Success,
       data: mentor
     };
   }
@@ -66,7 +67,7 @@ export class MentorsController {
       const schedule = await this.mentorsService.getMentorSchedule(id);
       
       return {
-        status: 'success',
+        status: StatusCodes.Success,
         timestamp: new Date().toLocaleString(),
         data: schedule
       };
@@ -82,7 +83,7 @@ export class MentorsController {
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateMentorDto: UpdateMentorDto) {
     const mentor = await this.mentorsService.update(id, updateMentorDto);
     return {
-      status: 'success',
+      status: StatusCodes.Success,
       data: mentor
     };
   }
@@ -91,7 +92,7 @@ export class MentorsController {
   async remove(@Param('id', ParseIntPipe) id: number) {
     await this.mentorsService.remove(id);
     return {
-      status: 'success',
+      status: StatusCodes.Success,
       message: `Mentor with ID ${id} has been deleted`
     };
   }
