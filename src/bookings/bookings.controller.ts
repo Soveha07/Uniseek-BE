@@ -34,6 +34,19 @@ export class BookingsController {
     return this.bookingsService.updateStatus(id, BookingStatus.COMPLETED);
   }
 
+  // Update status to "declined"
+  @Patch('/declined/:id')
+  updateStatusToDeclined(@Param('id') id: number) {
+    return this.bookingsService.updateStatus(id, BookingStatus.DECLINED);
+  }
+
+
+  // Update status to "declined"
+  @Patch('/cancelled/:id')
+  updateStatusToCancelled(@Param('id') id: number) {
+    return this.bookingsService.updateStatus(id, BookingStatus.CANCELLED);
+  }
+
   @Get('mentor/:mentorId')
   getBookingsByMentor(@Param('mentorId') mentorId: number): Promise<Booking[]> {
     return this.bookingsService.getBookingsByMentorId(mentorId);

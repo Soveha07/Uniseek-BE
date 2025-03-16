@@ -131,6 +131,7 @@ export class BookingsService {
     return this.bookingRepository.find({
       where: { mentor: { id: mentorId } },
       relations: ['mentor', 'student'],
+      order: { bookedAt: 'DESC' },
     });
   }
 

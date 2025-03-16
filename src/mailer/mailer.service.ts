@@ -52,7 +52,7 @@ export class MailerService {
                 </p>
             
                 <div style="text-align: center; margin-top: 20px;">
-                    <a href="http://localhost:3000"
+                    <a href="http://localhost:3000/mentor/home"
                         style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #28a745; text-decoration: none; border-radius: 5px;">
                         ✅ Confirm Now
                     </a>
