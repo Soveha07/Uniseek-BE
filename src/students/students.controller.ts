@@ -26,30 +26,30 @@ export class StudentsController {
     }
   }
 
+  @Public()
   @Post('/update/:uid')
   async update(@Param("uid") uid: string, @Body() body: { username: string; phoneNumber: string }) {
     return this.studentsService.updateStudent(uid, body.username, body.phoneNumber);
   }
 
 
+  @Public()
   @Get()
   findAll() {
     return this.studentsService.findAll();
   }
 
+  @Public()
   @Get('/:uid')
   async findById(@Param('uid') uid: string): Promise<Student> {
     return this.studentsService.findById(uid);
   }
 
-
   @Delete(':uid')
   async deleteStudent(@Param('uid') uid: string): Promise<void> {
     await this.studentsService.deleteStudent(uid);
   }
-  /**
-   * Upload a new profile image
-   */
+
   @Public()
   @Post('/upload-profile-image/:uid')
   @UseInterceptors(FileInterceptor('image'))
@@ -58,35 +58,11 @@ export class StudentsController {
     @UploadedFile() file: Express.Multer.File
   ) {
     try {
-      this.logger.log(`Uploading profile image for student ${uid}`);
-
-      if (!file) {
-        this.logger.error('No file uploaded or field name is incorrect');
-        throw new BadRequestException('No file uploaded or field name is incorrect. Use "image" as the field name.');
-      }
-
-      // Validate file type
-      if (!file.mimetype.startsWith('image/')) {
-        throw new BadRequestException('Only image files are allowed');
-      }
-
-      this.logger.debug(`File info: ${file.originalname}, size: ${file.size}, type: ${file.mimetype}`);
-
       const imageUrl = await this.storageService.uploadFile(file, `students/${uid}/profile`);
-      this.logger.debug(`File uploaded with URL: ${imageUrl}`);
-
       await this.studentsService.updateProfileImage(uid, imageUrl);
-      this.logger.log(`Profile image updated for student ${uid}`);
 
       return { imageUrl };
     } catch (error) {
-      this.logger.error(`Error uploading profile image: ${error.message}`, error.stack);
-
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException(`Failed to upload image: ${error.message}`);
     }
   }
 
@@ -104,7 +80,6 @@ export class StudentsController {
       if (!file) {
         throw new BadRequestException('No file uploaded or field name is incorrect. Use "image" as the field name.');
       }
-
       // Validate file type
       if (!file.mimetype.startsWith('image/')) {
         throw new BadRequestException('Only image files are allowed');
@@ -131,19 +106,34 @@ export class StudentsController {
       if (error instanceof BadRequestException) {
         throw error;
       }
-
       throw new InternalServerErrorException(`Failed to update image: ${error.message}`);
     }
   }
 
-  @Public()
-  @Get('/test-space-config')
-  testSpaceConfig() {
-    return {
-      region: this.storageService['region'],
-      endpoint: this.storageService['endpoint'],
-      bucket: this.storageService['bucket'],
-      fullUrl: `https://${this.storageService['bucket']}.${this.storageService['endpoint']}/example/path.jpg`,
-    };
-  }
+  /*
+  JUST TESTING COMPONENTS STUFF
+  */
+
+  // @Public()
+  // @Get('/test-space-config')
+  // testSpaceConfig() {
+  //   return {
+  //     region: this.storageService['region'],
+  //     endpoint: this.storageService['endpoint'],
+  //     bucket: this.storageService['bucket'],
+  //     fullUrl: `https://${this.storageService['bucket']}.${this.storageService['endpoint']}/example/path.jpg`,
+  //   };
+  // }
+
+  // @Public()
+  // @Post('/test-db-update/:uid')
+  // async testDbUpdate(@Param('uid') uid: string) {
+  //   const testUrl = "https://test-url.com/image.jpg";
+  //   const updatedStudent = await this.studentsService.updateProfileImage(uid, testUrl);
+  //   return {
+  //     before: "Before update",
+  //     after: updatedStudent,
+  //     success: updatedStudent.photoURL === testUrl
+  //   };
+  // }
 }
