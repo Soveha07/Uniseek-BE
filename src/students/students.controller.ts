@@ -26,12 +26,15 @@ export class StudentsController {
     }
   }
 
-  @Public()
   @Post('/update/:uid')
   async update(@Param("uid") uid: string, @Body() body: { username: string; phoneNumber: string }) {
     return this.studentsService.updateStudent(uid, body.username, body.phoneNumber);
   }
 
+  @Post('/update-password/:uid')
+  async updatePass(@Param("uid") uid: string, @Body() body: { password: string }) {
+    return this.studentsService.updatePassword(uid, body.password);
+  }
 
   @Public()
   @Get()
@@ -39,7 +42,6 @@ export class StudentsController {
     return this.studentsService.findAll();
   }
 
-  @Public()
   @Get('/:uid')
   async findById(@Param('uid') uid: string): Promise<Student> {
     return this.studentsService.findById(uid);
@@ -50,7 +52,6 @@ export class StudentsController {
     await this.studentsService.deleteStudent(uid);
   }
 
-  @Public()
   @Post('/upload-profile-image/:uid')
   @UseInterceptors(FileInterceptor('image'))
   async uploadProfileImage(
@@ -66,7 +67,6 @@ export class StudentsController {
     }
   }
 
-  @Public()
   @Post('/update-profile-image/:uid')
   @UseInterceptors(FileInterceptor('image'))
   async updateProfileImage(

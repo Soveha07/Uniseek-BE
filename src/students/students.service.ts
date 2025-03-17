@@ -100,6 +100,29 @@ export class StudentsService {
     }
   }
 
+  async updatePassword(uid: string, newPassword: string): Promise<string> {
+    const student = await this.studentRepository.findOne({
+      where: { uid },
+    });
+
+    if (!student) {
+      throw new NotFoundException('User not found');
+    }
+
+    try {
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+      student.password = hashedPassword;
+      await this.studentRepository.save(student);
+
+      return "Password updated successfully";
+    } catch (error) {
+      console.error('Error updating password:', error);
+      throw new InternalServerErrorException('Failed to update password');
+    }
+  }
+
   async deleteStudent(uid: string): Promise<void> {
     const result = await this.studentRepository.delete(uid);
     if (result.affected === 0) {
@@ -122,7 +145,7 @@ export class StudentsService {
     if (!student) {
       throw new NotFoundException(`Student with ID ${uid} not found`);
     }
-    
+
     student.photoURL = imageUrl;
     return this.studentRepository.save(student);
   }
