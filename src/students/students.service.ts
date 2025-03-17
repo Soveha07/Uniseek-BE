@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, HttpException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './entities/student.entity';
@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from 'src/auth/auth.service';
 import { CreateStudentGoogleDto } from './dto/create-student-google.dto';
+import { STATUS_CODES } from 'http';
+import { StatusCodes } from 'src/enums/statusCodes';
 
 @Injectable()
 export class StudentsService {
@@ -100,10 +102,17 @@ export class StudentsService {
     }
   }
 
-  async updatePassword(uid: string, newPassword: string): Promise<string> {
+  async updatePassword(uid: string, newPassword: string, currentPassword?: string): Promise<string> {
     const student = await this.studentRepository.findOne({
       where: { uid },
     });
+
+    if (student.password !== null) {
+      const isPasswordValid = await bcrypt.compare(currentPassword, student.password);
+      if (!isPasswordValid) {
+        throw new HttpException("Your current password isn't correct", StatusCodes.BadRequest);
+      }
+    }
 
     if (!student) {
       throw new NotFoundException('User not found');

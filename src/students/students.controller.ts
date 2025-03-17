@@ -32,8 +32,8 @@ export class StudentsController {
   }
 
   @Post('/update-password/:uid')
-  async updatePass(@Param("uid") uid: string, @Body() body: { password: string }) {
-    return this.studentsService.updatePassword(uid, body.password);
+  async updatePass(@Param("uid") uid: string, @Body() body: { newPassword: string, currentPassword?: string }) {
+    return this.studentsService.updatePassword(uid, body.newPassword, body.currentPassword);
   }
 
   @Public()
