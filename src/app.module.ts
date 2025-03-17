@@ -18,6 +18,7 @@ import { CareerFieldsModule } from './career-fields/career-fields.module';
 import { MentorsModule } from './mentors/mentors.module';
 import { MailerService } from './mailer/mailer.service';
 import { BookingsModule } from './bookings/bookings.module';
+import { RatingsModule } from './ratings/ratings.module';
 
 
 @Module({
@@ -53,6 +54,7 @@ import { BookingsModule } from './bookings/bookings.module';
     CareerFieldsModule,
     MentorsModule,
     BookingsModule,
+    RatingsModule,
   ],
   controllers: [AppController],
   providers: [

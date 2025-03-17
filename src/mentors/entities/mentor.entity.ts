@@ -3,6 +3,7 @@ import { MentorAvailability } from './mentor-availabilty.entity';
 import { University } from 'src/universities/entities/university.entity';
 import { Major } from 'src/majors/entities/major.entity';
 import { Booking } from 'src/bookings/entities/booking.entity';
+import { Rating } from 'src/ratings/entities/rating.entity';
 
 
 @Entity('mentors')
@@ -44,4 +45,7 @@ export class Mentor {
 
     @OneToMany(() => Booking, (booking) => booking.mentor)
     bookings: Booking[];
+
+    @OneToMany(() => Rating, (rating) => rating.mentor)
+    ratings: Rating[];
 }

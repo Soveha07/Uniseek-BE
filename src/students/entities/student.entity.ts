@@ -1,4 +1,5 @@
 import { Booking } from 'src/bookings/entities/booking.entity';
+import { Rating } from 'src/ratings/entities/rating.entity';
 import { Role } from 'src/role.enum';
 import { SurveyResponse } from 'src/survey-responses/entities/survey-response.entity';
 import {
@@ -53,4 +54,7 @@ export class Student {
 
     @OneToMany(() => Booking, (booking) => booking.student)
     bookings: Booking[];
+
+    @OneToMany(() => Rating, (rating) => rating.student)
+    ratings: Rating[];
 }
