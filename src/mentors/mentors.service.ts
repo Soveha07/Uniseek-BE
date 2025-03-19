@@ -166,4 +166,15 @@ export class MentorsService {
     }
   }
 
+  async updateProfileImage(id: number, profileUrl: string): Promise<Mentor> {
+    const mentor = await this.findOne(id);
+    
+    if (!mentor) {
+      throw new NotFoundException(`Mentor with ID ${id} not found`);
+    }
+    
+    mentor.profileUrl = profileUrl;
+    return this.mentorsRepository.save(mentor);
+  }
+
 }

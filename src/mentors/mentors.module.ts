@@ -5,12 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Mentor } from './entities/mentor.entity';
 import { MajorsModule } from 'src/majors/majors.module';
 import { UniversitiesModule } from 'src/universities/universities.module';
-
+import { StorageModule } from '../students/storage.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Mentor]),
     MajorsModule,
-    UniversitiesModule
+    UniversitiesModule,
+    StorageModule,
   ],
   controllers: [MentorsController],
   providers: [MentorsService],
