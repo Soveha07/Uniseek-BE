@@ -76,28 +76,12 @@ export class StorageService {
       });
 
       await this.s3Client.send(command);
-      await this.saveFileLocally(file.buffer, key);
       
       const fileUrl = `https://${this.bucket}.${this.endpoint}/${key}`;
       return fileUrl;
     } catch (error) {
       this.logger.error(`Error uploading file: ${error.message}`);
       throw new Error(`Failed to upload file: ${error.message}`);
-    }
-  }
-
-  private async saveFileLocally(fileBuffer: Buffer, key: string): Promise<void> {
-    try {
-      const filePath = path.join(this.localStoragePath, key);
-      const directory = path.dirname(filePath);
-      
-      if (!fs.existsSync(directory)) {
-        await mkdir(directory, { recursive: true });
-      }
-
-      await writeFile(filePath, fileBuffer);
-    } catch (error) {
-      this.logger.error(`Failed to save file locally: ${error.message}`);
     }
   }
 
@@ -126,22 +110,9 @@ export class StorageService {
       });
 
       await this.s3Client.send(command);
-      await this.deleteFileLocally(key);
     } catch (error) {
       this.logger.error(`Error deleting file: ${error.message}`);
       throw new Error(`Failed to delete file: ${error.message}`);
-    }
-  }
-
-  private async deleteFileLocally(key: string): Promise<void> {
-    try {
-      const filePath = path.join(this.localStoragePath, key);
-      
-      if (fs.existsSync(filePath)) {
-        await unlink(filePath);
-      }
-    } catch (error) {
-      this.logger.error(`Failed to delete file locally: ${error.message}`);
     }
   }
 
